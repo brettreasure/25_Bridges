@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Volunteers — 25 Bridges</title>
+  <meta name="description" content="Volunteer with 25 Bridges — tutors, coordinators, and more. Meet our current volunteers.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">
+        <img src="assets/logo-arch-paper.svg" alt="25 Bridges" class="nav-logo">
+        <span class="nav-name">25 Bridges</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="volunteers.html" aria-current="page">Volunteers</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="index.html#donate" class="nav-donate">Donate</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page">
+
+      <header class="page-hero">
+        <span class="mono">Get involved</span>
+        <h1>Volunteers &amp; <em>tutors.</em></h1>
+        <p>25 Bridges runs on the generosity of tutors, coordinators, and supporters around the world.</p>
+      </header>
+
+      <section class="section">
+        <div class="volunteers-layout">
+
+          <div>
+            <span class="sec-label">Current volunteers</span>
+            <h2 class="sec-title" style="font-size:28px; margin-bottom:20px;">Online English tutors &amp; bilingual tutors.</h2>
+            <ul class="volunteer-list">
+              <li>Bret Treasure</li>
+              <li>Peggy Humphrey</li>
+              <li>Khush Patel</li>
+              <li>Hema Sahai or Rao</li>
+              <li>Deb Nichols</li>
+              <li>Saya Bobby</li>
+              <li>Aye Tun</li>
+              <li>Kha Le</li>
+            </ul>
+          </div>
+
+          <div>
+            <span class="sec-label">Open opportunities</span>
+            <h2 class="sec-title" style="font-size:28px; margin-bottom:20px;">How you can help.</h2>
+            <ul class="opportunity-list">
+              <li><span class="opp-title">Online English tutor</span></li>
+              <li><span class="opp-title">Fundraising Coordinator</span></li>
+              <li><span class="opp-title">Grant writer</span></li>
+              <li><span class="opp-title">Marketing coordinator</span></li>
+              <li><span class="opp-title">Administrator</span></li>
+            </ul>
+            <div class="volunteer-cta">
+              Interested in volunteering? <a href="contact.html">Get in touch</a> and tell us a little about yourself and how you'd like to help.
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="assets/logo-arch-paper.svg" alt="25 Bridges">
+        <span>25 Bridges</span>
+      </div>
+      <div class="footer-legal">
+        CHAI (Chin Humanitarian Aid International)<br>
+        Public charity status: 509(a)(2)
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const toggle = document.getElementById('nav-toggle');
+    const links  = document.getElementById('nav-links');
+    toggle.addEventListener('click', () => {
+      const open = links.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+  </script>
+
+</body>
+</html>

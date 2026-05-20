@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>About — 25 Bridges</title>
+  <meta name="description" content="25 Bridges is a startup charity supporting Myanmar refugees in Mizoram, India through English education, scholarships, and humanitarian aid.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">
+        <img src="assets/logo-arch-paper.svg" alt="25 Bridges" class="nav-logo">
+        <span class="nav-name">25 Bridges</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html" aria-current="page">About</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="volunteers.html">Volunteers</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="index.html#donate" class="nav-donate">Donate</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page">
+
+      <header class="page-hero">
+        <span class="mono">About us</span>
+        <h1>Who we <em>are.</em></h1>
+        <p>A startup charity supporting Myanmar communities displaced by civil war — through English education, scholarships, and humanitarian aid.</p>
+      </header>
+
+      <!-- Overview -->
+      <section class="section">
+        <span class="sec-label">Overview</span>
+        <h2 class="sec-title">How we began.</h2>
+        <div class="about-overview">
+          <div class="about-text">
+            <p>25 Bridges is a startup charity organisation, initially known as CHAI - Chin Humanitarian Aid International, founded in 2021.</p>
+            <p>Since the military coup of February 2021, thousands of Myanmar refugees have fled their home towns (and continue to do so) as a result of civil war.</p>
+            <p>We have raised funds to support predominantly Chin communities who have fled and become refugees in Mizoram, North East India. There are more than 100 refugee camps throughout Mizoram.</p>
+            <span class="project-note">2026 project: Sponsorship for education</span>
+          </div>
+          <div class="about-text">
+            <p>From rice bags to tarpaulin roofing, water tanks and sewing machines, we have raised funds and provided assistance.</p>
+            <p>Since 2022, numerous refugee students attending our online English classes have reached a proficiency level sufficient to attend formal schooling. Funds raised in 2026 will go towards supporting their schooling in Indian cities.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Objectives -->
+      <section class="section">
+        <span class="sec-label">Objectives</span>
+        <h2 class="sec-title">What we set out to do.</h2>
+        <ul class="rule-list">
+          <li>Sponsorship and scholarship project: Fundraising for education and training through recognised institutions.</li>
+          <li>Providing a safe and secure place where intergenerational skills training can take place — sewing, weaving, knitting, embroidery — preserving culture and providing dignity of work.</li>
+          <li>Where urgent needs are identified, fundraising for emergency humanitarian aid supplies.</li>
+        </ul>
+      </section>
+
+      <!-- Projects -->
+      <section class="section">
+        <span class="sec-label">Projects</span>
+        <h2 class="sec-title">The work, <em>in full.</em></h2>
+        <ul class="rule-list">
+          <li>Sponsorship for education.</li>
+          <li>Weekly Online English class (providing electronic devices to allow this).</li>
+          <li>Rice bags, tarpaulins and medical tools for refugee camps in Mizoram.</li>
+          <li>Sewing machines for refugee camps in Mizoram.</li>
+          <li>A safe and secure concrete community hub building for sewing and weaving.</li>
+        </ul>
+      </section>
+
+      <!-- Board & Team -->
+      <section class="section">
+        <span class="sec-label">People</span>
+        <h2 class="sec-title">Board &amp; <em>team.</em></h2>
+        <div class="board">
+          <div class="board-col">
+            <span class="board-col-title">25 Bridges Board</span>
+            <ul class="board-list">
+              <li>
+                <strong>Christalin Thangpawl</strong>
+                President · United States
+              </li>
+              <li>
+                <strong>Marion Porteous</strong>
+                Secretary · New Zealand
+              </li>
+              <li>
+                <strong>Sandy Boyd</strong>
+                Treasurer · Australia
+              </li>
+            </ul>
+          </div>
+          <div class="board-col">
+            <span class="board-col-title">Operational Team</span>
+            <ul class="board-list">
+              <li>
+                <strong>Boikung</strong>
+                Thaizawl Camp, Mizoram
+              </li>
+              <li>
+                <strong>John Thang</strong>
+                Hnahtial Camp, Mizoram
+              </li>
+              <li>
+                <strong>Ni Ni</strong>
+                Delhi, India
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="assets/logo-arch-paper.svg" alt="25 Bridges">
+        <span>25 Bridges</span>
+      </div>
+      <div class="footer-legal">
+        CHAI (Chin Humanitarian Aid International)<br>
+        Public charity status: 509(a)(2)
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const toggle = document.getElementById('nav-toggle');
+    const links  = document.getElementById('nav-links');
+    toggle.addEventListener('click', () => {
+      const open = links.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+  </script>
+
+</body>
+</html>

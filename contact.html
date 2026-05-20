@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Contact — 25 Bridges</title>
+  <meta name="description" content="Get in touch with 25 Bridges.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">
+        <img src="assets/logo-arch-paper.svg" alt="25 Bridges" class="nav-logo">
+        <span class="nav-name">25 Bridges</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="volunteers.html">Volunteers</a></li>
+        <li><a href="contact.html" aria-current="page">Contact</a></li>
+        <li><a href="index.html#donate" class="nav-donate">Donate</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page">
+
+      <header class="page-hero">
+        <span class="mono">Get in touch</span>
+        <h1>Contact <em>us.</em></h1>
+        <p>Questions, partnerships, volunteering, or press. We read every message.</p>
+      </header>
+
+      <section class="section">
+        <div class="contact-layout">
+
+          <div class="contact-details">
+            <div>
+              <span class="contact-detail-label">Email</span>
+              <p class="contact-detail-value">
+                <a href="mailto:president.chai22@gmail.com">president.chai22@gmail.com</a>
+              </p>
+            </div>
+            <div>
+              <span class="contact-detail-label">Office</span>
+              <p class="contact-detail-value">Maryland, United States</p>
+            </div>
+            <div>
+              <span class="contact-detail-label">Watch</span>
+              <p class="contact-detail-value">
+                <a href="https://www.youtube.com/@chinhumanitarianaidinternation" target="_blank" rel="noopener">YouTube</a>
+              </p>
+            </div>
+          </div>
+
+          <form class="contact-form" id="contact-form" action="https://api.web3forms.com/submit" method="POST" novalidate>
+            <input type="hidden" name="access_key" value="4f457065-d3ec-40bc-8a30-c84431e039b2">
+            <input type="hidden" name="subject" value="25 Bridges website enquiry">
+            <input type="hidden" name="from_name" value="25 Bridges website">
+            <input type="checkbox" name="botcheck" style="display:none">
+
+            <div class="form-field">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" autocomplete="name" required>
+            </div>
+            <div class="form-field">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" autocomplete="email" required>
+            </div>
+            <div class="form-field">
+              <label for="subject">Subject</label>
+              <input type="text" id="subject" name="subject_line" required>
+            </div>
+            <div class="form-field">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" required></textarea>
+            </div>
+
+            <div class="form-message" id="form-message"></div>
+
+            <button type="submit" class="btn btn-primary" id="submit-btn">Send message</button>
+          </form>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="assets/logo-arch-paper.svg" alt="25 Bridges">
+        <span>25 Bridges</span>
+      </div>
+      <div class="footer-legal">
+        CHAI (Chin Humanitarian Aid International)<br>
+        Public charity status: 509(a)(2)
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile nav
+    const toggle = document.getElementById('nav-toggle');
+    const links  = document.getElementById('nav-links');
+    toggle.addEventListener('click', () => {
+      const open = links.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+
+    // Contact form (Web3Forms)
+    const form    = document.getElementById('contact-form');
+    const msg     = document.getElementById('form-message');
+    const submitBtn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.textContent = 'Sending…';
+      submitBtn.disabled = true;
+
+      try {
+        const res  = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: new FormData(form)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          msg.textContent = 'Message received. Thank you. We will be in touch.';
+          msg.className = 'form-message success';
+          msg.style.display = 'block';
+          form.reset();
+          submitBtn.textContent = 'Send message';
+          submitBtn.disabled = false;
+        } else {
+          throw new Error(data.message || 'Submission failed');
+        }
+      } catch (err) {
+        msg.textContent = 'We couldn\'t send your message. Check your connection and try again, or email us directly at president.chai22@gmail.com.';
+        msg.className = 'form-message error';
+        msg.style.display = 'block';
+        submitBtn.textContent = 'Send message';
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>

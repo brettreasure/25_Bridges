@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Gallery — 25 Bridges</title>
+  <meta name="description" content="Images from the 25 Bridges community — refugee camps, students, and daily life in Mizoram, India.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">
+        <img src="assets/logo-arch-paper.svg" alt="25 Bridges" class="nav-logo">
+        <span class="nav-name">25 Bridges</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="gallery.html" aria-current="page">Gallery</a></li>
+        <li><a href="volunteers.html">Volunteers</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="index.html#donate" class="nav-donate">Donate</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page">
+
+      <header class="page-hero">
+        <span class="mono">Gallery</span>
+        <h1>The <em>community.</em></h1>
+        <p>Photographs from Mizoram, India — the camps, the people, and daily life.</p>
+      </header>
+
+      <section class="section">
+        <div class="gallery-grid">
+          <img src="images/gallery-weaving.jpg" alt="Women weaving traditional fabric on a loom, Mizoram">
+          <img src="images/gallery-students.jpg" alt="Group of students, Mizoram">
+          <img src="images/gallery-campfire.jpg" alt="Family gathered around a campfire outside their shelter, Mizoram">
+          <img src="images/gallery-sewing.jpg" alt="Women at sewing machines in a community workshop, Mizoram">
+          <img src="images/gallery-toddler.jpg" alt="Young girl standing in a garden, Mizoram">
+          <img src="images/gallery-shelter.jpg" alt="Bamboo and tarpaulin shelter in a refugee camp, Mizoram">
+          <img src="images/gallery-schoolgirls.png" alt="Two girls in school uniforms outside a camp shelter, Mizoram">
+          <img src="images/gallery-kitchen.jpg" alt="Camp kitchen with open fire, Mizoram">
+          <img src="images/gallery-woman.png" alt="Young woman in traditional Chin dress, refugee camp behind her">
+          <img src="images/gallery-ridge-camp.png" alt="Aerial view of a refugee camp on a ridge, Mizoram">
+          <img src="images/gallery-umbrella.png" alt="Child walking with a pink umbrella on a muddy path">
+          <img src="images/gallery-bazar.png" alt="Chanmari Bazar market scene, Mizoram">
+          <img src="images/gallery-village.png" alt="Hill town panorama, Mizoram">
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="assets/logo-arch-paper.svg" alt="25 Bridges">
+        <span>25 Bridges</span>
+      </div>
+      <div class="footer-legal">
+        CHAI (Chin Humanitarian Aid International)<br>
+        Public charity status: 509(a)(2)
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const toggle = document.getElementById('nav-toggle');
+    const links  = document.getElementById('nav-links');
+    toggle.addEventListener('click', () => {
+      const open = links.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+  </script>
+
+</body>
+</html>
