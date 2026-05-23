@@ -284,7 +284,7 @@ img { display: block; max-width: 100%; }
 
 /* ── Donate band ────────────────────────────── */
 .donate-band {
-  background: var(--navy);
+  background: var(--bone);
   padding: 56px;
   margin-top: 56px;
   display: flex;
@@ -297,7 +297,7 @@ img { display: block; max-width: 100%; }
   font-family: var(--serif);
   font-size: 19px;
   line-height: 1.65;
-  color: rgba(251,250,246,0.88);
+  color: var(--ink-72);
   max-width: 54ch;
 }
 .donate-band .donate-note {
