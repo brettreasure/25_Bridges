@@ -6,6 +6,7 @@
   <meta name="description" content="25 Bridges teaches English to Myanmar youth in refugee camps in India, raising funds for devices, scholarships, and higher education.">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://www.paypal.com/sdk/js?client-id=BAAsX4WbM9_axEf48N2H-Ypzv6sxphYgZJfuvUcQB5-FecwEe0p5OsUBHI8ddsJA6433altnBcD7AEFwtg&components=hosted-buttons&enable-funding=venmo&currency=USD"></script>
 </head>
 <body>
 
@@ -70,8 +71,12 @@
       <!-- Donate band -->
       <div class="donate-band" id="donate">
         <p>We are now urgently seeking the last few dollars to fund teenagers Dada and Telzung into school/university in New Delhi. They are motivated and ambitious girls - super bright - and looking to give back to their community as qualified health professionals. Please do help.</p>
-        <a href="#" class="btn btn-donate">Donate</a>
-        <span class="donate-note">Donation platform coming soon</span>
+        <div id="paypal-container-DYJWJ9FHR9JA8"></div>
+        <script>
+          paypal.HostedButtons({
+            hostedButtonId: "DYJWJ9FHR9JA8",
+          }).render("#paypal-container-DYJWJ9FHR9JA8");
+        </script>
       </div>
     </div>
 
@@ -181,7 +186,7 @@
     <!-- Final donate CTA -->
     <div class="final-cta page">
       <span class="mono">Support our students</span>
-      <a href="#" class="btn btn-donate">Donate</a>
+      <a href="#donate" class="btn btn-donate">Donate</a>
     </div>
 
   </main>
