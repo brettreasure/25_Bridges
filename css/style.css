@@ -131,7 +131,7 @@ img { display: block; max-width: 100%; }
   gap: 12px;
   flex-shrink: 0;
 }
-.nav-logo { height: calc(var(--nav-h) * 2); width: auto; }
+.nav-logo { height: calc(var(--nav-h) * 2); width: auto; align-self: flex-start; }
 .nav-name {
   font-family: var(--serif);
   font-size: 17px;
@@ -189,7 +189,7 @@ img { display: block; max-width: 100%; }
   gap: 40px;
 }
 .footer-brand { display: flex; align-items: center; gap: 12px; }
-.footer-brand img { height: 36px; }
+.footer-brand img { height: 72px; }
 .footer-brand span {
   font-family: var(--serif);
   font-size: 15px;
