@@ -130,8 +130,9 @@ img { display: block; max-width: 100%; }
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  align-self: flex-start;
 }
-.nav-logo { height: calc(var(--nav-h) * 2); width: auto; align-self: flex-start; }
+.nav-logo { height: calc(var(--nav-h) * 2); width: auto; }
 .nav-name {
   font-family: var(--serif);
   font-size: 17px;
