@@ -114,6 +114,7 @@ img { display: block; max-width: 100%; }
   background: var(--navy);
   height: var(--nav-h);
   border-bottom: 1px solid rgba(251,250,246,0.08);
+  overflow: visible;
 }
 .nav-inner {
   max-width: var(--max-w);
@@ -130,7 +131,7 @@ img { display: block; max-width: 100%; }
   gap: 12px;
   flex-shrink: 0;
 }
-.nav-logo { height: 42px; width: auto; }
+.nav-logo { height: calc(var(--nav-h) * 2); width: auto; }
 .nav-name {
   font-family: var(--serif);
   font-size: 17px;
