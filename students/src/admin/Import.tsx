@@ -39,29 +39,28 @@ export default function Import() {
   return (
     <div>
       <h1>Import Zoom attendance</h1>
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem", maxWidth: 400 }}>
-        <label>
-          Session date
+      <form onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
+        <div className="field">
+          <label>Session date</label>
           <input
+            className="input"
             type="date"
             value={sessionDate}
             onChange={(e) => setSessionDate(e.target.value)}
             required
-            style={{ display: "block" }}
           />
-        </label>
-        <label>
-          Zoom participants CSV
+        </div>
+        <div className="field">
+          <label>Zoom participants CSV</label>
           <input
             type="file"
             accept=".csv,text/csv"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             required
-            style={{ display: "block" }}
           />
-        </label>
-        {error && <p style={{ color: "crimson" }}>{error}</p>}
-        <button type="submit" disabled={submitting}>
+        </div>
+        {error && <p className="text-error">{error}</p>}
+        <button type="submit" className="btn btn-brand" disabled={submitting}>
           {submitting ? "Importing..." : "Import"}
         </button>
       </form>

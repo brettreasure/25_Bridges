@@ -1,0 +1,232 @@
+/* Shared admin UI — restrained use of the Signal palette: navy for brand
+   chrome/links, chartreuse only as a rare highlight, everything else ink/
+   paper/bone neutrals. See the 25 Bridges design system handoff. */
+
+.admin-shell {
+  min-height: 100svh;
+  background: var(--paper);
+  text-align: left;
+}
+
+.admin-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 24px;
+  height: 56px;
+  background: var(--navy);
+}
+
+.admin-nav a {
+  color: rgba(251, 250, 246, 0.72);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.admin-nav a:hover {
+  color: var(--paper);
+  background: rgba(251, 250, 246, 0.08);
+}
+
+.admin-nav .admin-nav-spacer {
+  margin-left: auto;
+}
+
+.admin-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: -0.005em;
+  line-height: 1;
+  padding: 9px 16px;
+  min-height: 36px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 150ms;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn-brand {
+  background: var(--navy);
+  color: var(--paper);
+}
+
+.btn-accent {
+  background: var(--chartreuse);
+  color: var(--ink);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink-40);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+  min-height: 28px;
+}
+
+.btn-link-plain {
+  background: transparent;
+  border: none;
+  padding: 0;
+  min-height: 0;
+  font-family: var(--sans);
+  font-size: inherit;
+  color: var(--navy);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--chartreuse);
+}
+
+/* Forms */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.field label {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-72);
+}
+
+.input,
+select.input,
+textarea.input {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink);
+  border: 1px solid var(--ink-14);
+  background: #fff;
+  border-radius: 4px;
+  padding: 0 12px;
+  height: 38px;
+}
+
+textarea.input {
+  height: auto;
+  padding: 10px 12px;
+}
+
+/* Tables */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  background: #fff;
+}
+
+.tbl thead th {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--ink-56);
+  font-weight: 500;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--ink-14);
+  background: var(--ink-04);
+}
+
+.tbl tbody td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--ink-08);
+  color: var(--ink);
+  vertical-align: middle;
+}
+
+.tbl tbody tr:hover {
+  background: var(--ink-04);
+}
+
+.tbl tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Cards */
+.card {
+  background: #fff;
+  border: 1px solid var(--ink-14);
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.card-muted {
+  background: var(--ink-04);
+}
+
+.text-secondary {
+  color: var(--ink-56);
+  font-size: 13.5px;
+}
+
+.text-error {
+  color: var(--danger);
+  font-size: 13.5px;
+}
+
+.text-success {
+  color: var(--navy);
+  font-size: 13.5px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-56);
+  background: var(--ink-04);
+  border-radius: 999px;
+  padding: 3px 9px;
+}

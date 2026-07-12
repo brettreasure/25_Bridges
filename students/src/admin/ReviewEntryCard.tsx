@@ -3,6 +3,10 @@ import { useMutation } from "convex/react";
 import { ConvexError } from "convex/values";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
+import { detectHonorific } from "../lib/honorifics";
+
+const ROLES = ["student", "teacher", "aide", "guest"] as const;
+type Role = (typeof ROLES)[number];
 
 function toMessage(err: unknown): string {
   if (err instanceof ConvexError && typeof err.data === "string") return err.data;
@@ -17,18 +21,19 @@ export default function ReviewEntryCard({
   allPeople: Doc<"people">[];
 }) {
   const linkExisting = useMutation(api.reviewQueue.linkExisting);
-  const createNewStudent = useMutation(api.reviewQueue.createNewStudent);
-  const markGuest = useMutation(api.reviewQueue.markGuest);
+  const createNewPerson = useMutation(api.reviewQueue.createNewPerson);
   const ignore = useMutation(api.reviewQueue.ignore);
 
-  const defaultName = entry.parentheticalAlt
+  const rawForNaming = entry.parentheticalAlt
     ? entry.rawName.replace(/\s*\(.+\)\s*$/, "")
     : entry.rawName;
+  const { suggestedName, isLikelyTeacher } = detectHonorific(rawForNaming);
 
   const [selectedPersonId, setSelectedPersonId] = useState<string>(
     entry.suggestedMatches[0]?.personId ?? ""
   );
-  const [newName, setNewName] = useState(defaultName);
+  const [newName, setNewName] = useState(suggestedName);
+  const [newRole, setNewRole] = useState<Role>(isLikelyTeacher ? "teacher" : "student");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -46,27 +51,23 @@ export default function ReviewEntryCard({
 
   if (entry.resolution) {
     return (
-      <li style={{ border: "1px solid #eee", borderRadius: 6, padding: "0.75rem 1rem", marginBottom: "0.75rem" }}>
+      <li className="card card-muted">
         <strong>{entry.rawName}</strong> — {entry.reason} — resolved: {entry.resolution}
       </li>
     );
   }
 
   return (
-    <li style={{ border: "1px solid #ddd", borderRadius: 6, padding: "0.75rem 1rem", marginBottom: "0.75rem" }}>
+    <li className="card">
       <div>
-        <strong>{entry.rawName}</strong>{" "}
-        <span style={{ fontSize: "0.8rem", color: "#666" }}>({entry.reason})</span>
+        <strong>{entry.rawName}</strong> <span className="text-secondary">({entry.reason})</span>
+        {isLikelyTeacher && <span className="tag" style={{ marginLeft: 6 }}>teacher/aide honorific</span>}
       </div>
-      {entry.splitFrom && (
-        <div style={{ fontSize: "0.8rem", color: "#666" }}>split from: {entry.splitFrom}</div>
-      )}
-      {entry.parentheticalAlt && (
-        <div style={{ fontSize: "0.8rem", color: "#666" }}>alt: {entry.parentheticalAlt}</div>
-      )}
+      {entry.splitFrom && <div className="text-secondary">split from: {entry.splitFrom}</div>}
+      {entry.parentheticalAlt && <div className="text-secondary">alt: {entry.parentheticalAlt}</div>}
 
-      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.5rem", flexWrap: "wrap" }}>
-        <select value={selectedPersonId} onChange={(e) => setSelectedPersonId(e.target.value)}>
+      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.6rem", flexWrap: "wrap" }}>
+        <select className="input" value={selectedPersonId} onChange={(e) => setSelectedPersonId(e.target.value)}>
           <option value="">Select a person...</option>
           {entry.suggestedMatches.map((m) => (
             <option key={`sug-${m.personId}`} value={m.personId}>
@@ -83,6 +84,7 @@ export default function ReviewEntryCard({
         </select>
         <button
           type="button"
+          className="btn btn-secondary btn-sm"
           disabled={busy || !selectedPersonId}
           onClick={() =>
             run(() =>
@@ -95,22 +97,31 @@ export default function ReviewEntryCard({
       </div>
 
       <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.5rem", flexWrap: "wrap" }}>
-        <input value={newName} onChange={(e) => setNewName(e.target.value)} style={{ minWidth: 200 }} />
-        <button type="button" disabled={busy} onClick={() => run(() => createNewStudent({ entryId: entry._id, name: newName }))}>
-          Create new student (pending)
-        </button>
-        <button type="button" disabled={busy} onClick={() => run(() => markGuest({ entryId: entry._id, name: newName }))}>
-          Mark as guest
+        <input className="input" value={newName} onChange={(e) => setNewName(e.target.value)} style={{ minWidth: 200 }} />
+        <select className="input" value={newRole} onChange={(e) => setNewRole(e.target.value as Role)}>
+          {ROLES.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          className="btn btn-brand btn-sm"
+          disabled={busy}
+          onClick={() => run(() => createNewPerson({ entryId: entry._id, name: newName, role: newRole }))}
+        >
+          Add as new {newRole}
         </button>
       </div>
 
       <div style={{ marginTop: "0.5rem" }}>
-        <button type="button" disabled={busy} onClick={() => run(() => ignore({ entryId: entry._id }))}>
+        <button type="button" className="btn btn-secondary btn-sm" disabled={busy} onClick={() => run(() => ignore({ entryId: entry._id }))}>
           Ignore
         </button>
       </div>
 
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && <p className="text-error">{error}</p>}
     </li>
   );
 }

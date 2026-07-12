@@ -9,6 +9,7 @@ import {
   splitDualNames,
   detectParenthetical,
   looksLikeDevice,
+  trySplitJointName,
   type Candidate,
 } from "./lib/csv";
 import { matchAgainstPeople, type MatchCandidate } from "./lib/matching";
@@ -77,13 +78,27 @@ export const importSession = mutation({
     const merged = mergeByExactName(nonHostRows);
 
     // Steps 4 & 5 — a name that's entirely "X (Y)" is treated as a single
-    // ambiguous parenthetical unit and never split, even if Y itself
-    // contains " & "/"and" (e.g. "Eugene Roman (Eugene Roman & Assumpta)")
-    // — splitting first would mangle the parenthetical mid-bracket.
-    // Anything else goes through the normal dual/group-name split.
+    // ambiguous parenthetical unit and never split on & /and, even if Y
+    // itself contains one of those separators — UNLESS Y is itself a joint
+    // name (e.g. "Eugene Roman (Eugene Roman & Assumpta)" really means two
+    // attendees, Eugene Roman and Assumpta, sharing one connection). In
+    // that case, expand to one candidate per unique name instead of a
+    // single ambiguous entry. Anything else goes through the normal
+    // dual/group-name split.
     const candidates: PipelineCandidate[] = merged.flatMap((row) => {
       const parenthetical = detectParenthetical(row.rawName);
       if (parenthetical) {
+        const jointNames = trySplitJointName(parenthetical.alt);
+        if (jointNames) {
+          const uniqueNames = Array.from(new Set([parenthetical.primary, ...jointNames]));
+          return uniqueNames.map((name) => ({
+            rawName: name,
+            splitFrom: row.rawName,
+            joinTime: row.joinTime,
+            leaveTime: row.leaveTime,
+            durationMinutes: row.durationMinutes,
+          }));
+        }
         return [
           {
             rawName: row.rawName,

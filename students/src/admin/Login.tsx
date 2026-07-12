@@ -16,8 +16,8 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false);
 
   return (
-    <div style={{ maxWidth: 360, margin: "4rem auto", fontFamily: "sans-serif" }}>
-      <h1 style={{ fontSize: "1.25rem" }}>25 Bridges Admin</h1>
+    <div style={{ maxWidth: 360, margin: "4rem auto", textAlign: "left" }}>
+      <h1 style={{ fontSize: "1.4rem" }}>25 Bridges Admin</h1>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -31,18 +31,18 @@ export default function Login() {
             })
             .finally(() => setSubmitting(false));
         }}
-        style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
+        style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}
       >
-        <label>
-          Email
-          <input name="email" type="email" required style={{ display: "block", width: "100%" }} />
-        </label>
-        <label>
-          Password
-          <input name="password" type="password" required style={{ display: "block", width: "100%" }} />
-        </label>
-        {error && <p style={{ color: "crimson" }}>{error}</p>}
-        <button type="submit" disabled={submitting}>
+        <div className="field">
+          <label>Email</label>
+          <input className="input" name="email" type="email" required />
+        </div>
+        <div className="field">
+          <label>Password</label>
+          <input className="input" name="password" type="password" required />
+        </div>
+        {error && <p className="text-error">{error}</p>}
+        <button type="submit" className="btn btn-brand" disabled={submitting}>
           {flow === "signIn" ? "Sign in" : "Create account"}
         </button>
       </form>
@@ -50,15 +50,13 @@ export default function Login() {
         {flow === "signIn" ? "First time logging in?" : "Already have a password?"}{" "}
         <button
           type="button"
+          className="btn-link-plain"
           onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
-          style={{ background: "none", border: "none", color: "blue", cursor: "pointer", padding: 0 }}
         >
           {flow === "signIn" ? "Set a password" : "Sign in"}
         </button>
       </p>
-      <p style={{ fontSize: "0.8rem", color: "#666" }}>
-        Only pre-approved admin emails can create an account.
-      </p>
+      <p className="text-secondary">Only pre-approved admin emails can create an account.</p>
     </div>
   );
 }

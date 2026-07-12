@@ -73,52 +73,19 @@ export const linkExisting = mutation({
   },
 });
 
-export const createNewStudent = mutation({
-  args: { entryId: v.id("reviewQueue"), name: v.string() },
-  handler: async (ctx, { entryId, name }) => {
-    const admin = await requireAdmin(ctx);
-    const entry = await getUnresolvedEntry(ctx, entryId);
-
-    const trimmedName = name.trim();
-    if (!trimmedName) throw new ConvexError("Name is required.");
-
-    const now = Date.now();
-    const personId = await ctx.db.insert("people", {
-      name: trimmedName,
-      aliases: trimmedName === entry.rawName ? [] : [entry.rawName],
-      role: "student",
-      approvalStatus: "pending",
-      registrationSource: "admin",
-      createdAt: now,
-      updatedAt: now,
-    });
-
-    await ctx.db.insert("attendanceRecords", {
-      sessionId: entry.sessionId,
-      personId,
-      rawNames: [entry.rawName],
-      joinTime: entry.joinTime,
-      leaveTime: entry.leaveTime,
-      durationMinutes: entry.durationMinutes,
-      matchMethod: "manual",
-      resolvedBy: admin.email,
-      resolvedAt: now,
-    });
-
-    await ctx.db.patch(entryId, {
-      resolution: "created_new",
-      resolvedPersonId: personId,
-      resolvedBy: admin.email,
-      resolvedAt: now,
-    });
-
-    await finalizeIfComplete(ctx, entry.sessionId);
+// Creates a brand-new person (any role) from an unresolved queue entry and
+// links this session's attendance to them. Always "approved" directly,
+// regardless of role — the "pending" approval queue exists to screen public
+// self-registrations, and this mutation is always admin-initiated
+// (registrationSource: "admin"), so there's no second approval step needed
+// for a person the admin just decided to add.
+export const createNewPerson = mutation({
+  args: {
+    entryId: v.id("reviewQueue"),
+    name: v.string(),
+    role: v.union(v.literal("student"), v.literal("teacher"), v.literal("aide"), v.literal("guest")),
   },
-});
-
-export const markGuest = mutation({
-  args: { entryId: v.id("reviewQueue"), name: v.string() },
-  handler: async (ctx, { entryId, name }) => {
+  handler: async (ctx, { entryId, name, role }) => {
     const admin = await requireAdmin(ctx);
     const entry = await getUnresolvedEntry(ctx, entryId);
 
@@ -129,7 +96,7 @@ export const markGuest = mutation({
     const personId = await ctx.db.insert("people", {
       name: trimmedName,
       aliases: trimmedName === entry.rawName ? [] : [entry.rawName],
-      role: "guest",
+      role,
       approvalStatus: "approved",
       registrationSource: "admin",
       createdAt: now,
@@ -149,7 +116,7 @@ export const markGuest = mutation({
     });
 
     await ctx.db.patch(entryId, {
-      resolution: "marked_guest",
+      resolution: role === "guest" ? "marked_guest" : "created_new",
       resolvedPersonId: personId,
       resolvedBy: admin.email,
       resolvedAt: now,

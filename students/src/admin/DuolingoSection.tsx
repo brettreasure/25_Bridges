@@ -39,31 +39,31 @@ export default function DuolingoSection({ personId }: { personId: Id<"people"> }
     .filter((d): d is { testDate: string; value: number } => d.value !== null);
 
   return (
-    <div>
+    <div style={{ textAlign: "left" }}>
       <h2>Duolingo history</h2>
-      <form onSubmit={handleAdd} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end", marginBottom: "1rem" }}>
-        <label>
-          Level / score
-          <input value={level} onChange={(e) => setLevel(e.target.value)} style={{ display: "block" }} required />
-        </label>
-        <label>
-          Test date
+      <form onSubmit={handleAdd} style={{ display: "flex", gap: "0.75rem", alignItems: "flex-end", marginBottom: "1rem" }}>
+        <div className="field" style={{ marginBottom: 0 }}>
+          <label>Level / score</label>
+          <input className="input" value={level} onChange={(e) => setLevel(e.target.value)} required />
+        </div>
+        <div className="field" style={{ marginBottom: 0 }}>
+          <label>Month</label>
           <input
-            type="date"
+            className="input"
+            type="month"
             value={testDate}
             onChange={(e) => setTestDate(e.target.value)}
-            style={{ display: "block" }}
             required
           />
-        </label>
-        <button type="submit" disabled={submitting}>
+        </div>
+        <button type="submit" className="btn btn-brand" disabled={submitting}>
           Add entry
         </button>
       </form>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && <p className="text-error">{error}</p>}
 
       {entries === undefined && <p>Loading...</p>}
-      {entries && entries.length === 0 && <p>No Duolingo entries yet.</p>}
+      {entries && entries.length === 0 && <p className="text-secondary">No Duolingo entries yet.</p>}
       {entries && entries.length > 0 && (
         <>
           {chartData.length >= 2 && (
@@ -73,14 +73,14 @@ export default function DuolingoSection({ personId }: { personId: Id<"people"> }
                   <XAxis dataKey="testDate" />
                   <YAxis />
                   <Tooltip />
-                  <Line type="monotone" dataKey="value" stroke="#1a3a6b" />
+                  <Line type="monotone" dataKey="value" stroke="var(--navy)" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           )}
-          <table style={{ borderCollapse: "collapse", width: "100%", maxWidth: 500 }}>
+          <table className="tbl" style={{ maxWidth: 500 }}>
             <thead>
-              <tr style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>
+              <tr>
                 <th>Date</th>
                 <th>Level</th>
                 <th>Recorded by</th>
@@ -88,7 +88,7 @@ export default function DuolingoSection({ personId }: { personId: Id<"people"> }
             </thead>
             <tbody>
               {entries.map((entry) => (
-                <tr key={entry._id} style={{ borderBottom: "1px solid #eee" }}>
+                <tr key={entry._id}>
                   <td>{entry.testDate}</td>
                   <td>{entry.level}</td>
                   <td>{entry.recordedBy ?? ""}</td>

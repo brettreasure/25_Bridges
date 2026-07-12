@@ -29,16 +29,16 @@ export default function ReviewQueue() {
   return (
     <div>
       <h1>Session {detail.session.date}</h1>
-      <p>
+      <p className="text-secondary">
         Status: {detail.session.status} · Auto-matched: {detail.attendanceCount} · Review queue:{" "}
         {detail.reviewQueueCount} ({detail.unresolvedCount} unresolved)
       </p>
 
-      <h2>Auto-matched attendance</h2>
-      {attendance.length === 0 && <p>None.</p>}
-      <table style={{ borderCollapse: "collapse", width: "100%", marginBottom: "2rem" }}>
+      <h2 style={{ marginTop: "1.5rem" }}>Auto-matched attendance</h2>
+      {attendance.length === 0 && <p className="text-secondary">None.</p>}
+      <table className="tbl" style={{ marginBottom: "2rem" }}>
         <thead>
-          <tr style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>
+          <tr>
             <th>Raw name(s)</th>
             <th>Matched person</th>
             <th>Method</th>
@@ -47,7 +47,7 @@ export default function ReviewQueue() {
         </thead>
         <tbody>
           {attendance.map((record) => (
-            <tr key={record._id} style={{ borderBottom: "1px solid #eee" }}>
+            <tr key={record._id}>
               <td>{record.rawNames.join(", ")}</td>
               <td>{record.personName}</td>
               <td>{record.matchMethod}</td>
@@ -58,7 +58,7 @@ export default function ReviewQueue() {
       </table>
 
       <h2>Review queue</h2>
-      {reviewEntries.length === 0 && <p>Nothing flagged for review.</p>}
+      {reviewEntries.length === 0 && <p className="text-secondary">Nothing flagged for review.</p>}
       <ul style={{ listStyle: "none", padding: 0 }}>
         {unresolved.map((entry) => (
           <ReviewEntryCard key={entry._id} entry={entry} allPeople={allPeople} />

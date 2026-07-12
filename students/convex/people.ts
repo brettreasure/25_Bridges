@@ -159,6 +159,87 @@ export const reject = mutation({
   },
 });
 
+// Consolidates a duplicate person record (e.g. the same student ended up
+// with two rows under different names) into a single surviving record.
+// Moves attendance and Duolingo history over, folds the source's name/
+// nickname/aliases into the target's aliases so both names keep matching
+// in future imports, then deletes the source.
+export const mergeInto = mutation({
+  args: { sourceId: v.id("people"), targetId: v.id("people") },
+  handler: async (ctx, { sourceId, targetId }) => {
+    await requireAdmin(ctx);
+    if (sourceId === targetId) {
+      throw new ConvexError("Can't merge a person into themselves.");
+    }
+    const source = await ctx.db.get(sourceId);
+    const target = await ctx.db.get(targetId);
+    if (!source || !target) {
+      throw new ConvexError("Person not found.");
+    }
+
+    const attendance = await ctx.db
+      .query("attendanceRecords")
+      .withIndex("by_person", (q) => q.eq("personId", sourceId))
+      .collect();
+    for (const record of attendance) {
+      await ctx.db.patch(record._id, { personId: targetId });
+    }
+
+    const duolingo = await ctx.db
+      .query("duolingoRecords")
+      .withIndex("by_person", (q) => q.eq("personId", sourceId))
+      .collect();
+    for (const record of duolingo) {
+      await ctx.db.patch(record._id, { personId: targetId });
+    }
+
+    const mergedAliases = new Set(target.aliases);
+    mergedAliases.add(source.name);
+    if (source.nickname) mergedAliases.add(source.nickname);
+    for (const alias of source.aliases) mergedAliases.add(alias);
+
+    await ctx.db.patch(targetId, {
+      aliases: Array.from(mergedAliases),
+      updatedAt: Date.now(),
+    });
+
+    await ctx.db.delete(sourceId);
+  },
+});
+
+// Permanently removes a person and their attendance/Duolingo history — for
+// cleaning up test records created while trying out the tool. Does not
+// touch reviewQueue entries that reference this person as resolvedPersonId;
+// those stay as a resolved audit trail even if the person is gone.
+export const deletePerson = mutation({
+  args: { id: v.id("people") },
+  handler: async (ctx, { id }) => {
+    await requireAdmin(ctx);
+    const person = await ctx.db.get(id);
+    if (!person) {
+      throw new ConvexError("Person not found.");
+    }
+
+    const attendance = await ctx.db
+      .query("attendanceRecords")
+      .withIndex("by_person", (q) => q.eq("personId", id))
+      .collect();
+    for (const record of attendance) {
+      await ctx.db.delete(record._id);
+    }
+
+    const duolingo = await ctx.db
+      .query("duolingoRecords")
+      .withIndex("by_person", (q) => q.eq("personId", id))
+      .collect();
+    for (const record of duolingo) {
+      await ctx.db.delete(record._id);
+    }
+
+    await ctx.db.delete(id);
+  },
+});
+
 export const updatePerson = mutation({
   args: {
     id: v.id("people"),
@@ -185,8 +266,19 @@ export const updatePerson = mutation({
     }
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
+    let aliases = existing.aliases;
 
-    if (args.name !== undefined) patch.name = clean(args.name) ?? existing.name;
+    if (args.name !== undefined) {
+      const newName = clean(args.name) ?? existing.name;
+      // Renaming (e.g. a student turns out to go by a different name)
+      // shouldn't lose the old name as a match key — otherwise a future
+      // CSV import using their old Zoom display name would no longer
+      // find them and would create a duplicate person.
+      if (newName !== existing.name && !aliases.includes(existing.name)) {
+        aliases = [...aliases, existing.name];
+      }
+      patch.name = newName;
+    }
     if (args.nameBurmese !== undefined) patch.nameBurmese = clean(args.nameBurmese);
     if (args.role !== undefined) patch.role = args.role;
     if (args.email !== undefined) patch.email = clean(args.email);
@@ -212,9 +304,13 @@ export const updatePerson = mutation({
       }
       patch.nickname = nickname;
       patch.nicknameLower = nicknameLower;
-      if (nickname && !existing.aliases.includes(nickname)) {
-        patch.aliases = [...existing.aliases, nickname];
+      if (nickname && !aliases.includes(nickname)) {
+        aliases = [...aliases, nickname];
       }
+    }
+
+    if (aliases !== existing.aliases) {
+      patch.aliases = aliases;
     }
 
     await ctx.db.patch(args.id, patch);

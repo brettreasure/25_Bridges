@@ -10,10 +10,10 @@ export default function Sessions() {
   return (
     <div>
       <h1>Sessions</h1>
-      {sessions.length === 0 && <p>No sessions imported yet.</p>}
-      <table style={{ borderCollapse: "collapse", width: "100%" }}>
+      {sessions.length === 0 && <p className="text-secondary">No sessions imported yet.</p>}
+      <table className="tbl">
         <thead>
-          <tr style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>
+          <tr>
             <th>Date</th>
             <th>Source file</th>
             <th>Status</th>
@@ -21,12 +21,14 @@ export default function Sessions() {
         </thead>
         <tbody>
           {sessions.map((session) => (
-            <tr key={session._id} style={{ borderBottom: "1px solid #eee" }}>
+            <tr key={session._id}>
               <td>{session.date}</td>
               <td>{session.sourceFileName ?? ""}</td>
               <td>
                 {session.status === "needs_review" ? (
-                  <Link to={`/admin/import/${session._id}/review`}>needs review</Link>
+                  <Link to={`/admin/import/${session._id}/review`} className="btn-link-plain">
+                    needs review
+                  </Link>
                 ) : (
                   session.status
                 )}

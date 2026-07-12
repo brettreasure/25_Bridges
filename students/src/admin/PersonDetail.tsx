@@ -7,6 +7,8 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { formatAge } from "../lib/age";
 import DuolingoSection from "./DuolingoSection";
 import AttendanceHistorySection from "./AttendanceHistorySection";
+import MergeSection from "./MergeSection";
+import DeleteSection from "./DeleteSection";
 
 const ROLES = ["student", "teacher", "aide", "guest"] as const;
 
@@ -87,20 +89,21 @@ export default function PersonDetail() {
   }
 
   const field = (labelText: string, key: keyof typeof form) => (
-    <label style={{ display: "block", marginBottom: "0.75rem" }}>
-      {labelText}
+    <div className="field">
+      <label>{labelText}</label>
       <input
-        style={{ display: "block", width: "100%", maxWidth: 400 }}
+        className="input"
+        style={{ width: "100%", maxWidth: 400 }}
         value={form[key]}
         onChange={(e) => setForm({ ...form, [key]: e.target.value })}
       />
-    </label>
+    </div>
   );
 
   return (
     <div>
       <h1>{person.name}</h1>
-      <p style={{ color: "#666" }}>
+      <p className="text-secondary" style={{ marginBottom: "1.25rem" }}>
         Age: {formatAge(form.birthdate) ?? "unknown"} · Status: {person.approvalStatus} ·
         Registration: {person.registrationSource}
       </p>
@@ -109,10 +112,11 @@ export default function PersonDetail() {
       {field("Name in Burmese", "nameBurmese")}
       {field("Nickname", "nickname")}
 
-      <label style={{ display: "block", marginBottom: "0.75rem" }}>
-        Role
+      <div className="field">
+        <label>Role</label>
         <select
-          style={{ display: "block" }}
+          className="input"
+          style={{ width: "100%", maxWidth: 400 }}
           value={form.role}
           onChange={(e) => setForm({ ...form, role: e.target.value as (typeof ROLES)[number] })}
         >
@@ -122,7 +126,7 @@ export default function PersonDetail() {
             </option>
           ))}
         </select>
-      </label>
+      </div>
 
       {field("Email", "email")}
       {field("Camp", "camp")}
@@ -130,42 +134,44 @@ export default function PersonDetail() {
       {field("Region", "region")}
       {field("Country", "country")}
 
-      <label style={{ display: "block", marginBottom: "0.75rem" }}>
-        Date of birth
+      <div className="field">
+        <label>Date of birth</label>
         <input
+          className="input"
           type="date"
-          style={{ display: "block" }}
           value={form.birthdate}
           onChange={(e) => setForm({ ...form, birthdate: e.target.value })}
         />
-      </label>
+      </div>
 
       {field("Ambition", "ambition")}
       {field("School", "school")}
 
-      <label style={{ display: "block", marginBottom: "0.75rem" }}>
-        Interests
+      <div className="field">
+        <label>Interests</label>
         <textarea
-          style={{ display: "block", width: "100%", maxWidth: 400 }}
+          className="input"
+          style={{ width: "100%", maxWidth: 400 }}
           rows={3}
           value={form.interests}
           onChange={(e) => setForm({ ...form, interests: e.target.value })}
         />
-      </label>
+      </div>
 
-      <label style={{ display: "block", marginBottom: "0.75rem" }}>
-        Admin notes
+      <div className="field">
+        <label>Admin notes</label>
         <textarea
-          style={{ display: "block", width: "100%", maxWidth: 400 }}
+          className="input"
+          style={{ width: "100%", maxWidth: 400 }}
           rows={3}
           value={form.notes}
           onChange={(e) => setForm({ ...form, notes: e.target.value })}
         />
-      </label>
+      </div>
 
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
-      {saved && <p style={{ color: "green" }}>Saved.</p>}
-      <button type="button" onClick={handleSave}>
+      {error && <p className="text-error">{error}</p>}
+      {saved && <p className="text-success">Saved.</p>}
+      <button type="button" className="btn btn-brand" onClick={handleSave}>
         Save
       </button>
 
@@ -175,6 +181,14 @@ export default function PersonDetail() {
 
       <div style={{ marginTop: "2rem" }}>
         <AttendanceHistorySection personId={person._id} />
+      </div>
+
+      <div className="card" style={{ marginTop: "2rem" }}>
+        <MergeSection personId={person._id} personName={person.name} />
+      </div>
+
+      <div className="card">
+        <DeleteSection personId={person._id} personName={person.name} />
       </div>
     </div>
   );

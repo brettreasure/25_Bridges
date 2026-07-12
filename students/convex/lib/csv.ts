@@ -103,21 +103,33 @@ const NAME_TOKEN = /[a-z]/i;
 // " & ", " and ", then "/" or "+" — in that order, per BUILD_SPEC.md step 4.
 const DUAL_NAME_PATTERNS = [/\s+&\s+/, /\s+and\s+/i, /\s*[/+]\s*/];
 
-export function splitDualNames(row: NormalizedRow): Candidate[] {
+// Pure string version, reused both for splitting a raw name directly and
+// for checking whether a parenthetical's bracketed portion is itself a
+// joint name (e.g. "Eugene Roman & Assumpta" inside "Eugene Roman (Eugene
+// Roman & Assumpta)").
+export function trySplitJointName(name: string): [string, string] | null {
   for (const pattern of DUAL_NAME_PATTERNS) {
-    const parts = row.rawName.split(pattern);
+    const parts = name.split(pattern);
     if (parts.length === 2) {
       const [a, b] = parts.map((p) => p.trim());
       if (a && b && NAME_TOKEN.test(a) && NAME_TOKEN.test(b)) {
-        return [a, b].map((half) => ({
-          rawName: half,
-          splitFrom: row.rawName,
-          joinTime: row.joinTime,
-          leaveTime: row.leaveTime,
-          durationMinutes: row.durationMinutes,
-        }));
+        return [a, b];
       }
     }
+  }
+  return null;
+}
+
+export function splitDualNames(row: NormalizedRow): Candidate[] {
+  const split = trySplitJointName(row.rawName);
+  if (split) {
+    return split.map((half) => ({
+      rawName: half,
+      splitFrom: row.rawName,
+      joinTime: row.joinTime,
+      leaveTime: row.leaveTime,
+      durationMinutes: row.durationMinutes,
+    }));
   }
   return [
     {

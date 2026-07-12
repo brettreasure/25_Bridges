@@ -11,26 +11,23 @@ export default function Pending() {
   return (
     <div>
       <h1>Pending registrations</h1>
-      {pending.length === 0 && <p>Nothing to review.</p>}
+      {pending.length === 0 && <p className="text-secondary">Nothing to review.</p>}
       <ul style={{ listStyle: "none", padding: 0 }}>
         {pending.map((person) => (
-          <li
-            key={person._id}
-            style={{ border: "1px solid #ddd", borderRadius: 6, padding: "0.75rem 1rem", marginBottom: "0.75rem" }}
-          >
+          <li key={person._id} className="card">
             <strong>{person.name}</strong>
             {person.nameBurmese && <span> ({person.nameBurmese})</span>}
-            <div style={{ fontSize: "0.85rem", color: "#555", margin: "0.4rem 0" }}>
+            <div className="text-secondary" style={{ margin: "0.4rem 0" }}>
               {person.nickname && <span>Nickname: {person.nickname} · </span>}
               {person.camp && <span>Camp: {person.camp} · </span>}
               {person.location?.town && <span>Town: {person.location.town} · </span>}
               {person.email && <span>Email: {person.email}</span>}
             </div>
             <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button type="button" onClick={() => approve({ id: person._id })}>
+              <button type="button" className="btn btn-primary btn-sm" onClick={() => approve({ id: person._id })}>
                 Approve
               </button>
-              <button type="button" onClick={() => reject({ id: person._id })}>
+              <button type="button" className="btn btn-danger btn-sm" onClick={() => reject({ id: person._id })}>
                 Reject
               </button>
             </div>

@@ -6,18 +6,18 @@ export default function AttendanceHistorySection({ personId }: { personId: Id<"p
   const records = useQuery(api.attendanceRecords.listForPerson, { personId });
 
   return (
-    <div>
+    <div style={{ textAlign: "left" }}>
       <h2>Attendance history</h2>
       {records === undefined && <p>Loading...</p>}
-      {records && records.length === 0 && <p>No attendance recorded yet.</p>}
+      {records && records.length === 0 && <p className="text-secondary">No attendance recorded yet.</p>}
       {records && records.length > 0 && (
         <>
-          <p style={{ color: "#666" }}>
+          <p className="text-secondary" style={{ marginBottom: "0.5rem" }}>
             {records.length} session{records.length === 1 ? "" : "s"} attended.
           </p>
-          <table style={{ borderCollapse: "collapse", width: "100%", maxWidth: 500 }}>
+          <table className="tbl" style={{ maxWidth: 500 }}>
             <thead>
-              <tr style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>
+              <tr>
                 <th>Session date</th>
                 <th>Duration (min)</th>
                 <th>Match method</th>
@@ -25,7 +25,7 @@ export default function AttendanceHistorySection({ personId }: { personId: Id<"p
             </thead>
             <tbody>
               {records.map((record) => (
-                <tr key={record._id} style={{ borderBottom: "1px solid #eee" }}>
+                <tr key={record._id}>
                   <td>{record.sessionDate}</td>
                   <td>{record.durationMinutes}</td>
                   <td>{record.matchMethod}</td>

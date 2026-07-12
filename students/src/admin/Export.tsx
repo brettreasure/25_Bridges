@@ -38,14 +38,14 @@ export default function Export() {
   return (
     <div>
       <h1>Export</h1>
-      <p style={{ display: "flex", gap: "1rem" }}>
-        <button type="button" onClick={exportPeople} disabled={!people}>
+      <div style={{ display: "flex", gap: "0.75rem" }}>
+        <button type="button" className="btn btn-secondary" onClick={exportPeople} disabled={!people}>
           Export people directory ({people?.length ?? "..."})
         </button>
-        <button type="button" onClick={exportAttendance} disabled={!attendance}>
+        <button type="button" className="btn btn-secondary" onClick={exportAttendance} disabled={!attendance}>
           Export attendance ({attendance?.length ?? "..."})
         </button>
-      </p>
+      </div>
     </div>
   );
 }
