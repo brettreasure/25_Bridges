@@ -76,9 +76,9 @@ export const labels = {
   },
   school: {
     en: "School (optional)",
-    my: "",
+    my: "ကျောင်း",
     hintEn: "Name of your school, if you go to one",
-    status: "placeholder",
+    status: "confirmed",
   },
   interests: {
     en: "Other interests (optional)",
