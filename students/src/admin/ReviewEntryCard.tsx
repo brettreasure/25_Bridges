@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation } from "convex/react";
 import { ConvexError } from "convex/values";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { detectHonorific } from "../lib/honorifics";
+import { matchAgainstPeople, type MatchCandidate } from "../../convex/lib/matching";
 
 const ROLES = ["student", "teacher", "aide", "guest"] as const;
 type Role = (typeof ROLES)[number];
@@ -11,6 +12,30 @@ type Role = (typeof ROLES)[number];
 function toMessage(err: unknown): string {
   if (err instanceof ConvexError && typeof err.data === "string") return err.data;
   return "That didn't work. Please try again.";
+}
+
+// The reviewQueue row's own suggestedMatches are frozen at import time — if
+// a matching person gets created afterward (e.g. resolving the same name in
+// a different session), it never shows up there. Re-running the match live
+// against the current roster catches that instead of silently risking a
+// duplicate person.
+function liveSuggestions(entry: Doc<"reviewQueue">, allPeople: Doc<"people">[]): MatchCandidate[] {
+  const primaryName = entry.parentheticalAlt
+    ? entry.rawName.replace(/\s*\(.+\)\s*$/, "")
+    : entry.rawName;
+  const primaryMatch = matchAgainstPeople(primaryName, allPeople);
+  if (!entry.parentheticalAlt) return primaryMatch.suggestions;
+
+  const altMatch = matchAgainstPeople(entry.parentheticalAlt, allPeople);
+  const seen = new Set<string>();
+  const deduped: MatchCandidate[] = [];
+  for (const m of [...primaryMatch.suggestions, ...altMatch.suggestions].sort((a, b) => b.score - a.score)) {
+    if (seen.has(m.personId)) continue;
+    seen.add(m.personId);
+    deduped.push(m);
+    if (deduped.length === 3) break;
+  }
+  return deduped;
 }
 
 export default function ReviewEntryCard({
@@ -29,9 +54,9 @@ export default function ReviewEntryCard({
     : entry.rawName;
   const { suggestedName, isLikelyTeacher } = detectHonorific(rawForNaming);
 
-  const [selectedPersonId, setSelectedPersonId] = useState<string>(
-    entry.suggestedMatches[0]?.personId ?? ""
-  );
+  const suggestions = useMemo(() => liveSuggestions(entry, allPeople), [entry, allPeople]);
+
+  const [selectedPersonId, setSelectedPersonId] = useState<string>(suggestions[0]?.personId ?? "");
   const [newName, setNewName] = useState(suggestedName);
   const [newRole, setNewRole] = useState<Role>(isLikelyTeacher ? "teacher" : "student");
   const [error, setError] = useState<string | null>(null);
@@ -57,11 +82,14 @@ export default function ReviewEntryCard({
     );
   }
 
+  const strongMatch = suggestions[0] && suggestions[0].score >= 0.9;
+
   return (
     <li className="card">
       <div>
         <strong>{entry.rawName}</strong> <span className="text-secondary">({entry.reason})</span>
         {isLikelyTeacher && <span className="tag" style={{ marginLeft: 6 }}>teacher/aide honorific</span>}
+        {strongMatch && <span className="tag" style={{ marginLeft: 6 }}>possible match found</span>}
       </div>
       {entry.splitFrom && <div className="text-secondary">split from: {entry.splitFrom}</div>}
       {entry.parentheticalAlt && <div className="text-secondary">alt: {entry.parentheticalAlt}</div>}
@@ -69,13 +97,13 @@ export default function ReviewEntryCard({
       <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.6rem", flexWrap: "wrap" }}>
         <select className="input" value={selectedPersonId} onChange={(e) => setSelectedPersonId(e.target.value)}>
           <option value="">Select a person...</option>
-          {entry.suggestedMatches.map((m) => (
+          {suggestions.map((m) => (
             <option key={`sug-${m.personId}`} value={m.personId}>
               {m.name} (suggested, {m.score.toFixed(2)})
             </option>
           ))}
           {allPeople
-            .filter((p) => !entry.suggestedMatches.some((m) => m.personId === p._id))
+            .filter((p) => !suggestions.some((m) => m.personId === p._id))
             .map((p) => (
               <option key={p._id} value={p._id}>
                 {p.name} ({p.role})
