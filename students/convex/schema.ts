@@ -102,9 +102,9 @@ export default defineSchema({
   // ---------------------------------------------------------------------
   duolingoRecords: defineTable({
     personId: v.id("people"),
-    level: v.string(), // free text: Duolingo's own level/unit label, or a
-    // score, depending on what's practical to collect — kept as a string
-    // rather than a number so it can hold e.g. "Unit 7" as well as "340 XP".
+    score: v.number(), // Duolingo English Test score, 0-160. CEFR level
+    // (A1-C2) is derived from this at display time, never stored — see
+    // src/lib/duolingo.ts.
     testDate: v.string(), // ISO date "YYYY-MM-DD"
     recordedBy: v.optional(v.string()), // admin identifier, or "self"
     notes: v.optional(v.string()),

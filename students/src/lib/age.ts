@@ -12,3 +12,11 @@ export function formatAge(birthdate: string | undefined, asOf = new Date()): str
   }
   return `${years} years, ${months} months`;
 }
+
+// A raw comparable number for sorting by age (larger = older). Not for
+// display — use formatAge for that.
+export function ageInDays(birthdate: string | undefined, asOf = new Date()): number | null {
+  if (!birthdate) return null;
+  const bd = new Date(birthdate);
+  return Math.floor((asOf.getTime() - bd.getTime()) / (1000 * 60 * 60 * 24));
+}

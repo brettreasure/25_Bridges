@@ -14,22 +14,41 @@ export const listForPerson = query({
   },
 });
 
+// For the People directory's "Duo Level" column — the most recent score
+// per person, across everyone, in one query rather than one per row.
+export const latestForAll = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const all = await ctx.db.query("duolingoRecords").collect();
+    const latestByPerson = new Map<string, (typeof all)[number]>();
+    for (const record of all) {
+      const existing = latestByPerson.get(record.personId);
+      if (!existing || record.testDate > existing.testDate) {
+        latestByPerson.set(record.personId, record);
+      }
+    }
+    return Object.fromEntries(latestByPerson);
+  },
+});
+
 export const addEntry = mutation({
   args: {
     personId: v.id("people"),
-    level: v.string(),
+    score: v.number(),
     testDate: v.string(),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const admin = await requireAdmin(ctx);
-    const level = args.level.trim();
-    if (!level) throw new ConvexError("Level is required.");
+    if (!Number.isInteger(args.score) || args.score < 0 || args.score > 160) {
+      throw new ConvexError("Score must be a whole number from 0 to 160.");
+    }
     if (!args.testDate) throw new ConvexError("Test date is required.");
 
     await ctx.db.insert("duolingoRecords", {
       personId: args.personId,
-      level,
+      score: args.score,
       testDate: args.testDate,
       recordedBy: admin.email,
       notes: args.notes?.trim() || undefined,

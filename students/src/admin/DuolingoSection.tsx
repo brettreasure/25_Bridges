@@ -4,28 +4,33 @@ import { ConvexError } from "convex/values";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-
-function extractNumeric(level: string): number | null {
-  const match = level.match(/[\d.]+/);
-  return match ? parseFloat(match[0]) : null;
-}
+import { scoreToLevel } from "../lib/duolingo";
 
 export default function DuolingoSection({ personId }: { personId: Id<"people"> }) {
   const entries = useQuery(api.duolingo.listForPerson, { personId });
   const addEntry = useMutation(api.duolingo.addEntry);
 
-  const [level, setLevel] = useState("");
+  const [score, setScore] = useState("");
   const [testDate, setTestDate] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const scoreNumber = score === "" ? null : Number(score);
+  const previewLevel = scoreNumber !== null && Number.isInteger(scoreNumber) && scoreNumber >= 0 && scoreNumber <= 160
+    ? scoreToLevel(scoreNumber)
+    : null;
+
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (scoreNumber === null || !Number.isInteger(scoreNumber) || scoreNumber < 0 || scoreNumber > 160) {
+      setError("Score must be a whole number from 0 to 160.");
+      return;
+    }
     setSubmitting(true);
     try {
-      await addEntry({ personId, level, testDate });
-      setLevel("");
+      await addEntry({ personId, score: scoreNumber, testDate });
+      setScore("");
       setTestDate("");
     } catch (err) {
       setError(err instanceof ConvexError && typeof err.data === "string" ? err.data : "Could not add entry.");
@@ -34,18 +39,27 @@ export default function DuolingoSection({ personId }: { personId: Id<"people"> }
     }
   }
 
-  const chartData = (entries ?? [])
-    .map((e) => ({ testDate: e.testDate, value: extractNumeric(e.level) }))
-    .filter((d): d is { testDate: string; value: number } => d.value !== null);
+  const chartData = (entries ?? []).map((e) => ({ testDate: e.testDate, value: e.score }));
 
   return (
     <div style={{ textAlign: "left" }}>
       <h2>Duolingo history</h2>
       <form onSubmit={handleAdd} style={{ display: "flex", gap: "0.75rem", alignItems: "flex-end", marginBottom: "1rem" }}>
         <div className="field" style={{ marginBottom: 0 }}>
-          <label>Level / score</label>
-          <input className="input" value={level} onChange={(e) => setLevel(e.target.value)} required />
+          <label>Score</label>
+          <input
+            className="input"
+            type="number"
+            min={0}
+            max={160}
+            step={1}
+            style={{ width: 90 }}
+            value={score}
+            onChange={(e) => setScore(e.target.value)}
+            required
+          />
         </div>
+        {previewLevel && <div className="tag">{previewLevel}</div>}
         <div className="field" style={{ marginBottom: 0 }}>
           <label>Month</label>
           <input
@@ -71,7 +85,7 @@ export default function DuolingoSection({ personId }: { personId: Id<"people"> }
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <XAxis dataKey="testDate" />
-                  <YAxis />
+                  <YAxis domain={[0, 160]} />
                   <Tooltip />
                   <Line type="monotone" dataKey="value" stroke="var(--navy)" />
                 </LineChart>
@@ -82,6 +96,7 @@ export default function DuolingoSection({ personId }: { personId: Id<"people"> }
             <thead>
               <tr>
                 <th>Date</th>
+                <th>Score</th>
                 <th>Level</th>
                 <th>Recorded by</th>
               </tr>
@@ -90,7 +105,8 @@ export default function DuolingoSection({ personId }: { personId: Id<"people"> }
               {entries.map((entry) => (
                 <tr key={entry._id}>
                   <td>{entry.testDate}</td>
-                  <td>{entry.level}</td>
+                  <td>{entry.score}</td>
+                  <td>{scoreToLevel(entry.score)}</td>
                   <td>{entry.recordedBy ?? ""}</td>
                 </tr>
               ))}
