@@ -14,6 +14,22 @@ import {
 } from "recharts";
 import { api } from "../../convex/_generated/api";
 
+function toDdMm(iso: string): string {
+  const [, month, day] = iso.split("-");
+  return `${day}-${month}`;
+}
+
+// Picks up to `count` evenly-spaced dates (by index, not calendar time) from
+// an ascending-date series, always including the first and last, so the
+// X axis reads as a handful of clean labels instead of one per bar.
+function equidistantDates(dates: string[], count = 6): string[] {
+  if (dates.length === 0) return [];
+  const n = Math.min(count, dates.length);
+  const step = (dates.length - 1) / (n - 1 || 1);
+  const indices = new Set(Array.from({ length: n }, (_, i) => Math.round(i * step)));
+  return [...indices].map((i) => dates[i]);
+}
+
 export default function AdminHome() {
   const pending = useQuery(api.people.listByApproval, { approvalStatus: "pending" });
   const wednesdayTrend = useQuery(api.dashboard.wednesdayAttendanceTrend, {});
@@ -49,7 +65,12 @@ export default function AdminHome() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={wednesdayTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--ink-08)" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 11 }}
+                    ticks={equidistantDates(wednesdayTrend.map((d) => d.date))}
+                    tickFormatter={toDdMm}
+                  />
                   <YAxis allowDecimals={false} />
                   <Tooltip />
                   <Bar dataKey="count" fill="var(--navy)" />
