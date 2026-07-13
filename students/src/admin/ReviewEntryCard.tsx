@@ -4,7 +4,7 @@ import { ConvexError } from "convex/values";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { detectHonorific } from "../lib/honorifics";
-import { matchAgainstPeople, type MatchCandidate } from "../../convex/lib/matching";
+import { liveSuggestionsForEntry } from "../../convex/lib/matching";
 
 const ROLES = ["student", "teacher", "aide", "guest"] as const;
 type Role = (typeof ROLES)[number];
@@ -12,30 +12,6 @@ type Role = (typeof ROLES)[number];
 function toMessage(err: unknown): string {
   if (err instanceof ConvexError && typeof err.data === "string") return err.data;
   return "That didn't work. Please try again.";
-}
-
-// The reviewQueue row's own suggestedMatches are frozen at import time — if
-// a matching person gets created afterward (e.g. resolving the same name in
-// a different session), it never shows up there. Re-running the match live
-// against the current roster catches that instead of silently risking a
-// duplicate person.
-function liveSuggestions(entry: Doc<"reviewQueue">, allPeople: Doc<"people">[]): MatchCandidate[] {
-  const primaryName = entry.parentheticalAlt
-    ? entry.rawName.replace(/\s*\(.+\)\s*$/, "")
-    : entry.rawName;
-  const primaryMatch = matchAgainstPeople(primaryName, allPeople);
-  if (!entry.parentheticalAlt) return primaryMatch.suggestions;
-
-  const altMatch = matchAgainstPeople(entry.parentheticalAlt, allPeople);
-  const seen = new Set<string>();
-  const deduped: MatchCandidate[] = [];
-  for (const m of [...primaryMatch.suggestions, ...altMatch.suggestions].sort((a, b) => b.score - a.score)) {
-    if (seen.has(m.personId)) continue;
-    seen.add(m.personId);
-    deduped.push(m);
-    if (deduped.length === 3) break;
-  }
-  return deduped;
 }
 
 export default function ReviewEntryCard({
@@ -54,7 +30,7 @@ export default function ReviewEntryCard({
     : entry.rawName;
   const { suggestedName, isLikelyTeacher } = detectHonorific(rawForNaming);
 
-  const suggestions = useMemo(() => liveSuggestions(entry, allPeople), [entry, allPeople]);
+  const suggestions = useMemo(() => liveSuggestionsForEntry(entry, allPeople), [entry, allPeople]);
 
   const [selectedPersonId, setSelectedPersonId] = useState<string>(suggestions[0]?.personId ?? "");
   const [newName, setNewName] = useState(suggestedName);

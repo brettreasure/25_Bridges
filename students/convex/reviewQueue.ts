@@ -2,6 +2,7 @@ import { v, ConvexError } from "convex/values";
 import { mutation, query, type MutationCtx } from "./_generated/server";
 import { requireAdmin } from "./adminGuard";
 import type { Id } from "./_generated/dataModel";
+import { liveSuggestionsForEntry } from "./lib/matching";
 
 export const listForSession = query({
   args: { sessionId: v.id("classSessions") },
@@ -139,5 +140,69 @@ export const ignore = mutation({
     });
 
     await finalizeIfComplete(ctx, entry.sessionId);
+  },
+});
+
+// Links every unresolved entry in a session whose live top suggestion is a
+// 100% match, without a per-entry click — for a large backlog (e.g. the
+// historical import), requiring manual confirmation on unambiguous exact
+// matches is pure friction. Anything below a perfect score is left for
+// manual review, same as today.
+export const bulkResolveExactMatches = mutation({
+  args: { sessionId: v.id("classSessions") },
+  handler: async (ctx, { sessionId }) => {
+    const admin = await requireAdmin(ctx);
+    const entries = await ctx.db
+      .query("reviewQueue")
+      .withIndex("by_session", (q) => q.eq("sessionId", sessionId))
+      .collect();
+    const unresolved = entries.filter((e) => e.resolution === undefined);
+    if (unresolved.length === 0) return { resolvedCount: 0 };
+
+    const allPeople = await ctx.db.query("people").collect();
+    // Tracks alias additions across this whole run so a second entry
+    // resolving to the same person sees the first entry's new alias
+    // instead of overwriting it with a stale copy.
+    const aliasesByPerson = new Map(allPeople.map((p) => [p._id, new Set(p.aliases)]));
+    const now = Date.now();
+    let resolvedCount = 0;
+
+    for (const entry of unresolved) {
+      const top = liveSuggestionsForEntry(entry, allPeople)[0];
+      if (!top || top.score !== 1) continue;
+
+      await ctx.db.insert("attendanceRecords", {
+        sessionId,
+        personId: top.personId,
+        rawNames: [entry.rawName],
+        joinTime: entry.joinTime,
+        leaveTime: entry.leaveTime,
+        durationMinutes: entry.durationMinutes,
+        matchMethod: "exact",
+        resolvedBy: admin.email,
+        resolvedAt: now,
+      });
+
+      const aliases = aliasesByPerson.get(top.personId);
+      if (aliases && !aliases.has(entry.rawName)) {
+        aliases.add(entry.rawName);
+        await ctx.db.patch(top.personId, {
+          aliases: [...aliases],
+          updatedAt: now,
+        });
+      }
+
+      await ctx.db.patch(entry._id, {
+        resolution: "linked_existing",
+        resolvedPersonId: top.personId,
+        resolvedBy: admin.email,
+        resolvedAt: now,
+      });
+
+      resolvedCount++;
+    }
+
+    await finalizeIfComplete(ctx, sessionId);
+    return { resolvedCount };
   },
 });

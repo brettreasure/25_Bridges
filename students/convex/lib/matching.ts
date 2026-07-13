@@ -73,3 +73,32 @@ export function matchAgainstPeople(rawName: string, people: Doc<"people">[]): Ma
     suggestions,
   };
 }
+
+// A reviewQueue entry's own suggestedMatches are frozen at import time — if
+// a matching person gets created afterward (e.g. resolving the same name in
+// a different session), it never shows up there. Re-running the match live
+// against the current roster catches that instead of silently risking a
+// duplicate person. Shared between the review UI (src/admin/ReviewEntryCard)
+// and the server-side bulk-resolve mutation so both agree on what counts as
+// a match.
+export function liveSuggestionsForEntry(
+  entry: Pick<Doc<"reviewQueue">, "rawName" | "parentheticalAlt">,
+  people: Doc<"people">[]
+): MatchCandidate[] {
+  const primaryName = entry.parentheticalAlt
+    ? entry.rawName.replace(/\s*\(.+\)\s*$/, "")
+    : entry.rawName;
+  const primaryMatch = matchAgainstPeople(primaryName, people);
+  if (!entry.parentheticalAlt) return primaryMatch.suggestions;
+
+  const altMatch = matchAgainstPeople(entry.parentheticalAlt, people);
+  const seen = new Set<string>();
+  const deduped: MatchCandidate[] = [];
+  for (const m of [...primaryMatch.suggestions, ...altMatch.suggestions].sort((a, b) => b.score - a.score)) {
+    if (seen.has(m.personId)) continue;
+    seen.add(m.personId);
+    deduped.push(m);
+    if (deduped.length === 3) break;
+  }
+  return deduped;
+}

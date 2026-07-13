@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
+import { ConvexError } from "convex/values";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import ReviewEntryCard from "./ReviewEntryCard";
@@ -12,6 +14,10 @@ export default function ReviewQueue() {
   const reviewEntries = useQuery(api.reviewQueue.listForSession, { sessionId: id });
   const attendance = useQuery(api.attendanceRecords.listForSession, { sessionId: id });
   const allPeople = useQuery(api.people.listAll, {});
+  const bulkResolveExactMatches = useMutation(api.reviewQueue.bulkResolveExactMatches);
+
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkMessage, setBulkMessage] = useState<string | null>(null);
 
   if (
     detail === undefined ||
@@ -25,6 +31,21 @@ export default function ReviewQueue() {
 
   const unresolved = reviewEntries.filter((e) => !e.resolution);
   const resolved = reviewEntries.filter((e) => e.resolution);
+
+  async function runBulkResolve() {
+    setBulkBusy(true);
+    setBulkMessage(null);
+    try {
+      const { resolvedCount } = await bulkResolveExactMatches({ sessionId: id });
+      setBulkMessage(
+        resolvedCount === 0 ? "No 100% matches to resolve." : `Resolved ${resolvedCount} exact match(es).`
+      );
+    } catch (err) {
+      setBulkMessage(err instanceof ConvexError && typeof err.data === "string" ? err.data : "That didn't work.");
+    } finally {
+      setBulkBusy(false);
+    }
+  }
 
   return (
     <div>
@@ -59,6 +80,14 @@ export default function ReviewQueue() {
 
       <h2>Review queue</h2>
       {reviewEntries.length === 0 && <p className="text-secondary">Nothing flagged for review.</p>}
+      {unresolved.length > 0 && (
+        <div style={{ marginBottom: "1rem" }}>
+          <button type="button" className="btn btn-brand btn-sm" disabled={bulkBusy} onClick={runBulkResolve}>
+            Resolve all exact matches
+          </button>
+          {bulkMessage && <span className="text-secondary" style={{ marginLeft: "0.6rem" }}>{bulkMessage}</span>}
+        </div>
+      )}
       <ul style={{ listStyle: "none", padding: 0 }}>
         {unresolved.map((entry) => (
           <ReviewEntryCard key={entry._id} entry={entry} allPeople={allPeople} />
