@@ -19,7 +19,7 @@ export interface PortalLabel {
 
 export const portalLabels = {
   returningNoticeHeading: {
-    en: "Already attended a 25 Bridges class before?",
+    en: "Already done a 25 Bridges class?",
     my: "",
     myDraft: "25 Bridges အတန်းတက်ဖူးပါသလား?",
     status: "placeholder",
