@@ -4,7 +4,9 @@ import { ConvexError } from "convex/values";
 import "@fontsource/noto-sans-myanmar/400.css";
 import { api } from "../../convex/_generated/api";
 import FieldWrapper from "../components/FieldWrapper";
+import { BilingualBlock } from "../components/Bilingual";
 import { labels } from "../labels";
+import { portalLabels } from "../portal/portalLabels";
 import "./Register.css";
 
 export default function Register() {
@@ -86,6 +88,17 @@ export default function Register() {
   return (
     <div className="register-page">
       <h1>Register</h1>
+      <div className="returning-notice">
+        <BilingualBlock as="strong" text={portalLabels.returningNoticeHeading} />
+        <p>
+          Don't register again, just <a href="/portal/claim">claim your account</a>.
+        </p>
+        {portalLabels.returningNoticeBody.my && (
+          <p lang="my" className="lang-my">
+            {portalLabels.returningNoticeBody.my}
+          </p>
+        )}
+      </div>
       <p className="intro">Fill in what you know. Most fields are optional.</p>
       <form onSubmit={handleSubmit}>
         <FieldWrapper labelKey="name" htmlFor="name">

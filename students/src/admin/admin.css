@@ -218,6 +218,13 @@ textarea.input {
   font-size: 13.5px;
 }
 
+.lang-my {
+  display: block;
+  font-family: "Noto Sans Myanmar", var(--sans);
+  color: var(--navy);
+  margin-top: 0.15rem;
+}
+
 .tag {
   display: inline-flex;
   align-items: center;

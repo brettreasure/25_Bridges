@@ -90,6 +90,10 @@ export default defineSchema({
     // index is what makes that check a single indexed lookup rather than
     // a full table scan. See BUILD_SPEC.md "Nickname uniqueness."
     .index("by_nicknameLower", ["nicknameLower"])
+    // NOT 1:1 — multiple people (siblings sharing one household email) can
+    // have the same `email`. Every lookup on this index must use
+    // `.collect()`/`.first()`, never `.unique()`. See convex/portalGuard.ts.
+    .index("by_email", ["email"])
     // Convex doesn't do fuzzy/full-text matching in the base query layer —
     // pull all approved people into memory for the matching step, or use
     // a Convex search index for a coarse first pass if the roster grows

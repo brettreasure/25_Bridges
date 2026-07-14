@@ -14,6 +14,29 @@
   margin-bottom: 1.5rem;
 }
 
+.register-page .returning-notice {
+  background: var(--bone);
+  border: 1px solid var(--ink-14);
+  border-radius: 4px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.register-page .returning-notice strong {
+  color: var(--ink);
+}
+
+.register-page .returning-notice p {
+  color: var(--ink-56);
+  margin: 0.35rem 0 0;
+}
+
+.register-page .returning-notice a {
+  color: var(--navy);
+  font-weight: 600;
+}
+
 .register-page .field {
   margin-bottom: 1.25rem;
 }
