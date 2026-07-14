@@ -74,6 +74,20 @@
   color: var(--ink);
 }
 
+.register-page .radio-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.4rem 1.5rem 0 0;
+  font-weight: normal;
+}
+
+.register-page .radio-option input {
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+
 .register-page .field-error {
   color: var(--danger);
   font-size: 0.85rem;

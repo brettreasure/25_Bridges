@@ -8,6 +8,7 @@ import { formatAge } from "../lib/age";
 import DuolingoSection from "./DuolingoSection";
 import AttendanceHistorySection from "./AttendanceHistorySection";
 import HouseholdPasswordSection from "./HouseholdPasswordSection";
+import ParentGuardianConsentSection from "./ParentGuardianConsentSection";
 import MergeSection from "./MergeSection";
 import DeleteSection from "./DeleteSection";
 
@@ -175,6 +176,16 @@ export default function PersonDetail() {
       <button type="button" className="btn btn-brand" onClick={handleSave}>
         Save
       </button>
+
+      {person.isUnder13 && (
+        <div className="card" style={{ marginTop: "2rem" }}>
+          <ParentGuardianConsentSection
+            personId={person._id}
+            parentGuardianName={person.parentGuardianName}
+            parentGuardianConsentConfirmed={person.parentGuardianConsentConfirmed}
+          />
+        </div>
+      )}
 
       <div style={{ marginTop: "2rem" }}>
         <DuolingoSection personId={person._id} />

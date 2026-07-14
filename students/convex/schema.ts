@@ -70,6 +70,20 @@ export default defineSchema({
     // calculation") so it's always current.
     birthdate: v.optional(v.string()),
 
+    isUnder13: v.optional(v.boolean()), // self-reported at registration via
+    // the "Under 13?" toggle — drives the parent/guardian gate on /register.
+    parentGuardianName: v.optional(v.string()), // self-attested by the
+    // registrant when isUnder13 is true — NOT verified consent, just a
+    // typed name. See BUILD_SPEC.md "Things Not To Guess On".
+    parentGuardianConsentConfirmed: v.optional(v.boolean()), // admin-only:
+    // true once an admin has attempted to verify permission with the named
+    // parent/guardian (phone/in person/community leader). Never set by the
+    // public form. Does not block approve/reject.
+    parentGuardianConsentConfirmedBy: v.optional(v.string()), // admin email,
+    // mirrors approvedBy
+    parentGuardianConsentConfirmedAt: v.optional(v.number()), // epoch ms,
+    // mirrors approvedAt
+
     ambition: v.optional(v.string()),
     school: v.optional(v.string()),
     interests: v.optional(v.string()),
