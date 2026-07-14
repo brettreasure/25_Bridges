@@ -204,6 +204,8 @@ img { display: block; max-width: 100%; }
   text-align: right;
   line-height: 1.7;
 }
+.footer-legal a { text-decoration: underline; text-underline-offset: 2px; }
+.footer-legal a:hover { color: var(--paper); }
 
 /* ── Inner-page hero ────────────────────────── */
 .page-hero {
@@ -474,6 +476,35 @@ img { display: block; max-width: 100%; }
   padding: 9px 16px;
   margin-top: 24px;
 }
+/* Privacy policy */
+.policy-meta {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--ink-56);
+  margin-bottom: 32px;
+}
+.policy-body {
+  max-width: 68ch;
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: var(--ink-72);
+}
+.policy-body h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 24px;
+  color: var(--ink);
+  margin: 40px 0 12px;
+}
+.policy-body h2:first-child { margin-top: 0; }
+.policy-body p { margin-bottom: 14px; }
+.policy-body ul, .policy-body ol { margin: 0 0 14px; padding-left: 22px; }
+.policy-body li { margin-bottom: 6px; }
+.policy-body a { color: var(--navy); }
+.policy-body strong { color: var(--ink); font-weight: 600; }
+.policy-body hr { border: none; border-top: 1px solid var(--ink-14); margin: 32px 0; }
+
 .rule-list {
   list-style: none;
   padding: 0;
