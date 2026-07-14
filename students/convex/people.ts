@@ -95,7 +95,10 @@ export const register = mutation({
       role: "student",
       approvalStatus: "pending",
       registrationSource: "self",
-      email: clean(args.email),
+      // Lowercased so it matches claimPerson's normalized comparison
+      // (convex/portal.ts) — otherwise a self-registered "John@Gmail.com"
+      // could never be claimed by typing "john@gmail.com".
+      email: clean(args.email)?.toLowerCase(),
       camp: clean(args.camp),
       location: hasLocation ? { town, region, country } : undefined,
       birthdate: clean(args.birthdate),
@@ -329,7 +332,7 @@ export const updatePerson = mutation({
     }
     if (args.nameBurmese !== undefined) patch.nameBurmese = clean(args.nameBurmese);
     if (args.role !== undefined) patch.role = args.role;
-    if (args.email !== undefined) patch.email = clean(args.email);
+    if (args.email !== undefined) patch.email = clean(args.email)?.toLowerCase();
     if (args.camp !== undefined) patch.camp = clean(args.camp);
     if (args.birthdate !== undefined) patch.birthdate = clean(args.birthdate);
     if (args.ambition !== undefined) patch.ambition = clean(args.ambition);

@@ -39,7 +39,10 @@ export const searchClaimable = query({
       .withSearchIndex("search_name", (q) => q.search("name", trimmed))
       .take(20);
     return results
-      .filter((p) => p.role === "student" && p.approvalStatus === "approved")
+      // Already-claimed records (claimedAt set) are excluded — surfacing
+      // them here just leads to claimPerson's "already linked to a
+      // different email" dead end for anyone who selects one.
+      .filter((p) => p.role === "student" && p.approvalStatus === "approved" && p.claimedAt === undefined)
       .map((p) => ({ _id: p._id, name: p.name, nameBurmese: p.nameBurmese, camp: p.camp }));
   },
 });

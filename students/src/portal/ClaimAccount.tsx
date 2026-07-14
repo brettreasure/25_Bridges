@@ -61,6 +61,13 @@ export default function ClaimAccount() {
   );
 
   const passwordError = emailHasAccount === false ? validatePassword(password) : null;
+  // "Own email" was chosen but it already has a password — proceeding
+  // would call claimPerson (which commits immediately) before signIn even
+  // runs, leaving the record permanently linked to credentials the user
+  // doesn't actually have if their guess at the existing password is
+  // wrong. Block submission here; "Change answer" → "I share an email"
+  // reaches the identical sign-in path with the mismatch acknowledged.
+  const emailMismatch = emailMode === "own" && emailHasAccount === true;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -71,6 +78,9 @@ export default function ClaimAccount() {
     }
     if (!email.trim()) {
       setError("Email is required.");
+      return;
+    }
+    if (emailMismatch) {
       return;
     }
     if (emailHasAccount === false && passwordError) {
@@ -220,7 +230,11 @@ export default function ClaimAccount() {
               )}
 
               {error && <p className="text-error">{error}</p>}
-              <button type="submit" className="btn btn-brand" disabled={submitting || !debouncedEmail}>
+              <button
+                type="submit"
+                className="btn btn-brand"
+                disabled={submitting || !debouncedEmail || emailMismatch}
+              >
                 <BilingualInline
                   text={emailHasAccount ? portalLabels.claimContinueButton : portalLabels.claimCreateLoginButton}
                 />
