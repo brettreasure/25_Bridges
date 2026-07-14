@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import ParentGuardianConsentSection from "./ParentGuardianConsentSection";
 
 export default function Pending() {
   const pending = useQuery(api.people.listByApproval, { approvalStatus: "pending" });
@@ -23,6 +24,13 @@ export default function Pending() {
               {person.location?.town && <span>Town: {person.location.town} · </span>}
               {person.email && <span>Email: {person.email}</span>}
             </div>
+            {person.isUnder13 && (
+              <ParentGuardianConsentSection
+                personId={person._id}
+                parentGuardianName={person.parentGuardianName}
+                parentGuardianConsentConfirmed={person.parentGuardianConsentConfirmed}
+              />
+            )}
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <button type="button" className="btn btn-primary btn-sm" onClick={() => approve({ id: person._id })}>
                 Approve

@@ -54,6 +54,12 @@ export default defineSchema({
     ),
 
     email: v.optional(v.string()),
+    claimedAt: v.optional(v.number()), // epoch ms, set only by
+    // convex/portal.ts's claimPerson when a household completes the
+    // /portal/claim flow. This — not merely `email` being set — is what
+    // grants portal sign-in (see convex/auth.ts): `email` alone can also
+    // be set by the public, unauthenticated `register` mutation or by an
+    // admin editing contact info, neither of which should grant login.
     phone: v.optional(v.string()),
 
     camp: v.optional(v.string()),
@@ -69,6 +75,20 @@ export default defineSchema({
     // it's derived at query/display time (see BUILD_SPEC.md "Age
     // calculation") so it's always current.
     birthdate: v.optional(v.string()),
+
+    isUnder13: v.optional(v.boolean()), // self-reported at registration via
+    // the "Under 13?" toggle — drives the parent/guardian gate on /register.
+    parentGuardianName: v.optional(v.string()), // self-attested by the
+    // registrant when isUnder13 is true — NOT verified consent, just a
+    // typed name. See BUILD_SPEC.md "Things Not To Guess On".
+    parentGuardianConsentConfirmed: v.optional(v.boolean()), // admin-only:
+    // true once an admin has attempted to verify permission with the named
+    // parent/guardian (phone/in person/community leader). Never set by the
+    // public form. Does not block approve/reject.
+    parentGuardianConsentConfirmedBy: v.optional(v.string()), // admin email,
+    // mirrors approvedBy
+    parentGuardianConsentConfirmedAt: v.optional(v.number()), // epoch ms,
+    // mirrors approvedAt
 
     ambition: v.optional(v.string()),
     school: v.optional(v.string()),
@@ -90,6 +110,10 @@ export default defineSchema({
     // index is what makes that check a single indexed lookup rather than
     // a full table scan. See BUILD_SPEC.md "Nickname uniqueness."
     .index("by_nicknameLower", ["nicknameLower"])
+    // NOT 1:1 — multiple people (siblings sharing one household email) can
+    // have the same `email`. Every lookup on this index must use
+    // `.collect()`/`.first()`, never `.unique()`. See convex/portalGuard.ts.
+    .index("by_email", ["email"])
     // Convex doesn't do fuzzy/full-text matching in the base query layer —
     // pull all approved people into memory for the matching step, or use
     // a Convex search index for a coarse first pass if the roster grows

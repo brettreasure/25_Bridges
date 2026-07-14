@@ -1,6 +1,6 @@
 import { ConvexError } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import type { QueryCtx, MutationCtx } from "./_generated/server";
+import { internalQuery, query, type QueryCtx, type MutationCtx } from "./_generated/server";
 
 // Shared gate for every admin-only query/mutation. A valid session alone
 // isn't enough to trust long-term — a JWT can outlive an admin being
@@ -24,3 +24,35 @@ export async function requireAdmin(ctx: QueryCtx | MutationCtx) {
   }
   return admin;
 }
+
+// Public, non-throwing version of requireAdmin — lets AdminShell tell an
+// authenticated-but-not-admin session (now possible: household accounts
+// also authenticate, per convex/auth.ts) apart from a genuine admin, and
+// render a friendly message instead of every admin query throwing
+// ConvexError uncaught (this app has no error boundary anywhere).
+export const currentUserIsAdmin = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return false;
+    const user = await ctx.db.get(userId);
+    const email = (user as { email?: string } | null)?.email?.toLowerCase();
+    if (!email) return false;
+    const admin = await ctx.db
+      .query("adminUsers")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .unique();
+    return !!admin && admin.isActive;
+  },
+});
+
+// Actions don't have `ctx.db`, so `requireAdmin` can't run directly inside
+// one — this wraps it as an internalQuery an action can call via
+// `ctx.runQuery` (which forwards the caller's auth identity), for the
+// admin-only household-password-reset action in convex/adminActions.ts.
+export const assertAdmin = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+  },
+});

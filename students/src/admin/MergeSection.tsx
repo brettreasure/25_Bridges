@@ -38,6 +38,8 @@ export default function MergeSection({ personId, personName }: { personId: Id<"p
           <option value="">Select the person to merge into...</option>
           {allPeople
             ?.filter((p) => p._id !== personId)
+            .slice()
+            .sort((a, b) => a.name.localeCompare(b.name))
             .map((p) => (
               <option key={p._id} value={p._id}>
                 {p.name} ({p.role})

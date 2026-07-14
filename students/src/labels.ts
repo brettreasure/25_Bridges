@@ -14,6 +14,19 @@ export interface FieldLabel {
 }
 
 export const labels = {
+  under13: {
+    en: "Under 13?",
+    my: "",
+    hintEn: "This helps us follow child-safety rules. It does not affect whether you can register.",
+    status: "placeholder",
+  },
+  parentGuardianName: {
+    en: "Name of parent or guardian who has given permission",
+    my: "",
+    hintEn:
+      "Type the name of the parent or guardian who said it's okay for you to register. Typing a name here does not confirm permission by itself — a staff member will follow up with them.",
+    status: "placeholder",
+  },
   name: {
     en: "Name",
     my: "အမည်",

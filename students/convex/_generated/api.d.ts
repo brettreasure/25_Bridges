@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as adminActions from "../adminActions.js";
 import type * as adminGuard from "../adminGuard.js";
 import type * as adminUsers from "../adminUsers.js";
 import type * as attendanceRecords from "../attendanceRecords.js";
@@ -21,7 +22,10 @@ import type * as importSession from "../importSession.js";
 import type * as lib_csv from "../lib/csv.js";
 import type * as lib_historicalNames from "../lib/historicalNames.js";
 import type * as lib_matching from "../lib/matching.js";
+import type * as lib_passwordRule from "../lib/passwordRule.js";
 import type * as people from "../people.js";
+import type * as portal from "../portal.js";
+import type * as portalGuard from "../portalGuard.js";
 import type * as reviewQueue from "../reviewQueue.js";
 
 import type {
@@ -31,6 +35,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  adminActions: typeof adminActions;
   adminGuard: typeof adminGuard;
   adminUsers: typeof adminUsers;
   attendanceRecords: typeof attendanceRecords;
@@ -44,7 +49,10 @@ declare const fullApi: ApiFromModules<{
   "lib/csv": typeof lib_csv;
   "lib/historicalNames": typeof lib_historicalNames;
   "lib/matching": typeof lib_matching;
+  "lib/passwordRule": typeof lib_passwordRule;
   people: typeof people;
+  portal: typeof portal;
+  portalGuard: typeof portalGuard;
   reviewQueue: typeof reviewQueue;
 }>;
 

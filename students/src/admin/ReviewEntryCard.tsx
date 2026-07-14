@@ -80,6 +80,8 @@ export default function ReviewEntryCard({
           ))}
           {allPeople
             .filter((p) => !suggestions.some((m) => m.personId === p._id))
+            .slice()
+            .sort((a, b) => a.name.localeCompare(b.name))
             .map((p) => (
               <option key={p._id} value={p._id}>
                 {p.name} ({p.role})

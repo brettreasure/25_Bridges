@@ -7,6 +7,8 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { formatAge } from "../lib/age";
 import DuolingoSection from "./DuolingoSection";
 import AttendanceHistorySection from "./AttendanceHistorySection";
+import HouseholdPasswordSection from "./HouseholdPasswordSection";
+import ParentGuardianConsentSection from "./ParentGuardianConsentSection";
 import MergeSection from "./MergeSection";
 import DeleteSection from "./DeleteSection";
 
@@ -175,6 +177,16 @@ export default function PersonDetail() {
         Save
       </button>
 
+      {person.isUnder13 && (
+        <div className="card" style={{ marginTop: "2rem" }}>
+          <ParentGuardianConsentSection
+            personId={person._id}
+            parentGuardianName={person.parentGuardianName}
+            parentGuardianConsentConfirmed={person.parentGuardianConsentConfirmed}
+          />
+        </div>
+      )}
+
       <div style={{ marginTop: "2rem" }}>
         <DuolingoSection personId={person._id} />
       </div>
@@ -182,6 +194,12 @@ export default function PersonDetail() {
       <div style={{ marginTop: "2rem" }}>
         <AttendanceHistorySection personId={person._id} />
       </div>
+
+      {form.email && (
+        <div className="card" style={{ marginTop: "2rem" }}>
+          <HouseholdPasswordSection email={form.email} />
+        </div>
+      )}
 
       <div className="card" style={{ marginTop: "2rem" }}>
         <MergeSection personId={person._id} personName={person.name} />

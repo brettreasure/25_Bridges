@@ -55,11 +55,23 @@ export const register = mutation({
     ambition: v.optional(v.string()),
     school: v.optional(v.string()),
     interests: v.optional(v.string()),
+    isUnder13: v.optional(v.boolean()),
+    parentGuardianName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const name = args.name.trim();
     if (!name) {
       throw new ConvexError("Name is required.");
+    }
+
+    // Defense-in-depth: the register form disables itself until this is
+    // filled in, but the public mutation is directly callable, so re-check
+    // here too — same pattern as the nickname-uniqueness check below.
+    const cleanParentGuardianName = clean(args.parentGuardianName);
+    if (args.isUnder13 && !cleanParentGuardianName) {
+      throw new ConvexError(
+        "Name of parent or guardian who has given permission is required when registering as under 13."
+      );
     }
 
     const nickname = clean(args.nickname);
@@ -83,13 +95,18 @@ export const register = mutation({
       role: "student",
       approvalStatus: "pending",
       registrationSource: "self",
-      email: clean(args.email),
+      // Lowercased so it matches claimPerson's normalized comparison
+      // (convex/portal.ts) — otherwise a self-registered "John@Gmail.com"
+      // could never be claimed by typing "john@gmail.com".
+      email: clean(args.email)?.toLowerCase(),
       camp: clean(args.camp),
       location: hasLocation ? { town, region, country } : undefined,
       birthdate: clean(args.birthdate),
       ambition: clean(args.ambition),
       school: clean(args.school),
       interests: clean(args.interests),
+      isUnder13: args.isUnder13 ?? false,
+      parentGuardianName: args.isUnder13 ? cleanParentGuardianName : undefined,
       createdAt: now,
       updatedAt: now,
     });
@@ -133,6 +150,8 @@ export const getPerson = query({
   },
 });
 
+// Intentionally NOT gated on parentGuardianConsentConfirmed — approval must
+// never block on it (see BUILD_SPEC.md). Do not add that check here.
 export const approve = mutation({
   args: { id: v.id("people") },
   handler: async (ctx, { id }) => {
@@ -156,6 +175,38 @@ export const reject = mutation({
       approvedAt: Date.now(),
       updatedAt: Date.now(),
     });
+  },
+});
+
+// Admin-only. Records that an admin has attempted to verify permission with
+// the self-attested parent/guardian named on an under-13 registration
+// (phone, in person, or via the community leader) — NOT a claim that
+// consent was actually verified, and does not gate approve/reject. Two-way
+// so an admin can correct an accidental toggle.
+export const confirmParentGuardianConsent = mutation({
+  args: { id: v.id("people"), confirmed: v.boolean() },
+  handler: async (ctx, { id, confirmed }) => {
+    const admin = await requireAdmin(ctx);
+    const person = await ctx.db.get(id);
+    if (!person) {
+      throw new ConvexError("Person not found.");
+    }
+    await ctx.db.patch(
+      id,
+      confirmed
+        ? {
+            parentGuardianConsentConfirmed: true,
+            parentGuardianConsentConfirmedBy: admin.email,
+            parentGuardianConsentConfirmedAt: Date.now(),
+            updatedAt: Date.now(),
+          }
+        : {
+            parentGuardianConsentConfirmed: false,
+            parentGuardianConsentConfirmedBy: undefined,
+            parentGuardianConsentConfirmedAt: undefined,
+            updatedAt: Date.now(),
+          }
+    );
   },
 });
 
@@ -281,7 +332,7 @@ export const updatePerson = mutation({
     }
     if (args.nameBurmese !== undefined) patch.nameBurmese = clean(args.nameBurmese);
     if (args.role !== undefined) patch.role = args.role;
-    if (args.email !== undefined) patch.email = clean(args.email);
+    if (args.email !== undefined) patch.email = clean(args.email)?.toLowerCase();
     if (args.camp !== undefined) patch.camp = clean(args.camp);
     if (args.birthdate !== undefined) patch.birthdate = clean(args.birthdate);
     if (args.ambition !== undefined) patch.ambition = clean(args.ambition);

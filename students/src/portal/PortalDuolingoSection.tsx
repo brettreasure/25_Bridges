@@ -6,9 +6,9 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { scoreToLevel } from "../lib/duolingo";
 import DuolingoHistoryView from "../components/DuolingoHistoryView";
 
-export default function DuolingoSection({ personId }: { personId: Id<"people"> }) {
-  const entries = useQuery(api.duolingo.listForPerson, { personId });
-  const addEntry = useMutation(api.duolingo.addEntry);
+export default function PortalDuolingoSection({ personId }: { personId: Id<"people"> }) {
+  const entries = useQuery(api.portal.myDuolingoHistory, { personId });
+  const addEntry = useMutation(api.portal.myAddDuolingoEntry);
 
   const [score, setScore] = useState("");
   const [testDate, setTestDate] = useState("");
@@ -16,9 +16,10 @@ export default function DuolingoSection({ personId }: { personId: Id<"people"> }
   const [submitting, setSubmitting] = useState(false);
 
   const scoreNumber = score === "" ? null : Number(score);
-  const previewLevel = scoreNumber !== null && Number.isInteger(scoreNumber) && scoreNumber >= 0 && scoreNumber <= 160
-    ? scoreToLevel(scoreNumber)
-    : null;
+  const previewLevel =
+    scoreNumber !== null && Number.isInteger(scoreNumber) && scoreNumber >= 0 && scoreNumber <= 160
+      ? scoreToLevel(scoreNumber)
+      : null;
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
@@ -69,7 +70,7 @@ export default function DuolingoSection({ personId }: { personId: Id<"people"> }
           />
         </div>
         <button type="submit" className="btn btn-brand" disabled={submitting}>
-          Add entry
+          Add my score
         </button>
       </form>
       {error && <p className="text-error">{error}</p>}
