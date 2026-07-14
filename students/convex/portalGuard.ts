@@ -21,12 +21,18 @@ export async function requireHousehold(
   if (!email) {
     throw new ConvexError("Not signed in.");
   }
-  const people = await ctx.db
+  const allLinked = await ctx.db
     .query("people")
     .withIndex("by_email", (q) => q.eq("email", email))
     // NOT 1:1 — siblings can share a household email. .collect(), never
     // .unique().
     .collect();
+  // Only rows that actually completed the claim flow (claimedAt set) and
+  // are still approved count — mirrors the same check createOrUpdateUser
+  // makes at sign-in time (convex/auth.ts), so access revokes promptly
+  // (e.g. a claimed student later rejected) instead of surviving on an
+  // existing session's JWT until it happens to expire.
+  const people = allLinked.filter((p) => p.claimedAt !== undefined && p.approvalStatus === "approved");
   return { email, people };
 }
 

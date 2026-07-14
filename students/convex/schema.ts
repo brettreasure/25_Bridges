@@ -54,6 +54,12 @@ export default defineSchema({
     ),
 
     email: v.optional(v.string()),
+    claimedAt: v.optional(v.number()), // epoch ms, set only by
+    // convex/portal.ts's claimPerson when a household completes the
+    // /portal/claim flow. This — not merely `email` being set — is what
+    // grants portal sign-in (see convex/auth.ts): `email` alone can also
+    // be set by the public, unauthenticated `register` mutation or by an
+    // admin editing contact info, neither of which should grant login.
     phone: v.optional(v.string()),
 
     camp: v.optional(v.string()),

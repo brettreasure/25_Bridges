@@ -89,7 +89,7 @@ export const claimPerson = mutation({
       return; // idempotent re-claim with the same email (e.g. a second sibling, or a retry)
     }
 
-    await ctx.db.patch(personId, { email: normalized, updatedAt: Date.now() });
+    await ctx.db.patch(personId, { email: normalized, claimedAt: Date.now(), updatedAt: Date.now() });
   },
 });
 

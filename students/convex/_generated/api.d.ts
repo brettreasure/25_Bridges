@@ -22,6 +22,7 @@ import type * as importSession from "../importSession.js";
 import type * as lib_csv from "../lib/csv.js";
 import type * as lib_historicalNames from "../lib/historicalNames.js";
 import type * as lib_matching from "../lib/matching.js";
+import type * as lib_passwordRule from "../lib/passwordRule.js";
 import type * as people from "../people.js";
 import type * as portal from "../portal.js";
 import type * as portalGuard from "../portalGuard.js";
@@ -48,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   "lib/csv": typeof lib_csv;
   "lib/historicalNames": typeof lib_historicalNames;
   "lib/matching": typeof lib_matching;
+  "lib/passwordRule": typeof lib_passwordRule;
   people: typeof people;
   portal: typeof portal;
   portalGuard: typeof portalGuard;
