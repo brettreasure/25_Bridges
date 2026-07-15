@@ -135,6 +135,7 @@ export default function ClaimAccount() {
                     {p.name}
                     {p.nameBurmese ? ` (${p.nameBurmese})` : ""}
                     {p.camp ? ` — ${p.camp}` : ""}
+                    {p.role !== "student" ? ` — ${p.role}` : ""}
                   </button>
                 </li>
               ))}
