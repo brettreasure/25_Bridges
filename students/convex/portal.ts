@@ -27,7 +27,9 @@ async function assertNicknameAvailable(
 }
 
 // Public — no auth required (this powers the claim-account name search,
-// before any session exists). Deliberately returns only disambiguating
+// before any session exists). Any role can claim (not just students) —
+// teachers/aides/guests may need a portal login too, e.g. so admins can
+// later allocate students to them. Deliberately returns only disambiguating
 // fields — never notes/birthdate/phone/email.
 export const searchClaimable = query({
   args: { term: v.string() },
@@ -42,8 +44,8 @@ export const searchClaimable = query({
       // Already-claimed records (claimedAt set) are excluded — surfacing
       // them here just leads to claimPerson's "already linked to a
       // different email" dead end for anyone who selects one.
-      .filter((p) => p.role === "student" && p.approvalStatus === "approved" && p.claimedAt === undefined)
-      .map((p) => ({ _id: p._id, name: p.name, nameBurmese: p.nameBurmese, camp: p.camp }));
+      .filter((p) => p.approvalStatus === "approved" && p.claimedAt === undefined)
+      .map((p) => ({ _id: p._id, name: p.name, nameBurmese: p.nameBurmese, camp: p.camp, role: p.role }));
   },
 });
 
@@ -78,14 +80,14 @@ export const claimPerson = mutation({
     if (!normalized) throw new ConvexError("Email is required.");
 
     const person = await ctx.db.get(personId);
-    if (!person) throw new ConvexError("Student record not found.");
-    if (person.role !== "student" || person.approvalStatus !== "approved") {
+    if (!person) throw new ConvexError("Record not found.");
+    if (person.approvalStatus !== "approved") {
       throw new ConvexError("This record can't be claimed.");
     }
 
     if (person.email && person.email !== normalized) {
       throw new ConvexError(
-        "This student is already linked to a different email. If that's wrong, ask an admin for help."
+        "This record is already linked to a different email. If that's wrong, ask an admin for help."
       );
     }
     if (person.email === normalized) {
@@ -102,7 +104,7 @@ export const myPeople = query({
   args: {},
   handler: async (ctx) => {
     const { people } = await requireHousehold(ctx);
-    return people.map((p) => ({ _id: p._id, name: p.name, nameBurmese: p.nameBurmese, camp: p.camp }));
+    return people.map((p) => ({ _id: p._id, name: p.name, nameBurmese: p.nameBurmese, camp: p.camp, role: p.role }));
   },
 });
 
@@ -115,7 +117,7 @@ export const myProfile = query({
   handler: async (ctx, { personId }) => {
     await assertOwnsPerson(ctx, personId);
     const person = await ctx.db.get(personId);
-    if (!person) throw new ConvexError("Student record not found.");
+    if (!person) throw new ConvexError("Record not found.");
     return {
       _id: person._id,
       name: person.name,
@@ -163,9 +165,13 @@ export const myAttendanceHistory = query({
   },
 });
 
-// Student-editable profile fields — deliberately excludes role,
-// approvalStatus, notes (admin-only), and email (login identity; changes
-// only via re-claiming or an admin reset).
+// Self-editable profile fields — deliberately excludes role, approvalStatus,
+// notes (admin-only), and email (login identity; changes only via
+// re-claiming or an admin reset). The student-specific fields here
+// (nameBurmese, nickname, camp, birthdate, ambition, school, interests)
+// only apply to role "student" — the portal UI only ever sends `name` for
+// teachers/aides/guests, but nothing here enforces that server-side since
+// it's just a smaller UI, not a different trust boundary.
 export const updateMyProfile = mutation({
   args: {
     personId: v.id("people"),
@@ -184,7 +190,7 @@ export const updateMyProfile = mutation({
   handler: async (ctx, args) => {
     await assertOwnsPerson(ctx, args.personId);
     const existing = await ctx.db.get(args.personId);
-    if (!existing) throw new ConvexError("Student record not found.");
+    if (!existing) throw new ConvexError("Record not found.");
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
     let aliases = existing.aliases;

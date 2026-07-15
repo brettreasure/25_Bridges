@@ -21,8 +21,16 @@ type FormState = {
 
 // Editable profile fields only — mirrors PersonDetail.tsx's admin form, but
 // deliberately omits role, notes, approvalStatus, and email: those aren't
-// part of what a student can change about themselves.
-export default function PortalProfileSection({ personId }: { personId: Id<"people"> }) {
+// part of what a person can change about themselves. Non-students
+// (teacher/aide/guest) only get a name field — the rest are student-
+// specific (camp, school, birthdate, etc.) and don't apply otherwise.
+export default function PortalProfileSection({
+  personId,
+  role,
+}: {
+  personId: Id<"people">;
+  role: "student" | "teacher" | "aide" | "guest";
+}) {
   const profile = useQuery(api.portal.myProfile, { personId });
   const updateMyProfile = useMutation(api.portal.updateMyProfile);
 
@@ -56,7 +64,7 @@ export default function PortalProfileSection({ personId }: { personId: Id<"peopl
     setError(null);
     setSaved(false);
     try {
-      await updateMyProfile({ personId, ...form });
+      await updateMyProfile(role === "student" ? { personId, ...form } : { personId, name: form.name });
       setSaved(true);
     } catch (err) {
       setError(err instanceof ConvexError && typeof err.data === "string" ? err.data : "Save failed.");
@@ -74,6 +82,19 @@ export default function PortalProfileSection({ personId }: { personId: Id<"peopl
       />
     </div>
   );
+
+  if (role !== "student") {
+    return (
+      <div style={{ textAlign: "left" }}>
+        {field("Name", "name")}
+        {error && <p className="text-error">{error}</p>}
+        {saved && <p className="text-success">Saved.</p>}
+        <button type="button" className="btn btn-brand" onClick={handleSave}>
+          Save
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={{ textAlign: "left" }}>

@@ -52,11 +52,13 @@ export default function HouseholdDashboard() {
 
       <h2 style={{ marginTop: 0 }}>{selected.name}</h2>
 
-      <PortalProfileSection personId={selected._id} />
+      <PortalProfileSection personId={selected._id} role={selected.role} />
 
-      <div style={{ marginTop: "2rem" }}>
-        <PortalDuolingoSection personId={selected._id} />
-      </div>
+      {selected.role === "student" && (
+        <div style={{ marginTop: "2rem" }}>
+          <PortalDuolingoSection personId={selected._id} />
+        </div>
+      )}
 
       <div style={{ marginTop: "2rem" }}>
         <PortalAttendanceSection personId={selected._id} />
