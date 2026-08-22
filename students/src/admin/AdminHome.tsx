@@ -36,16 +36,6 @@ export default function AdminHome() {
   const trendYDomain: [number, number] = [0, sharedTrendMax];
   const trendTickFormatter = (date: string) => date.slice(5);
 
-  // The Saturday chart's X-axis should start at the same point as
-  // Wednesday's, even on weeks where there's no Saturday session yet —
-  // a zero-value entry at Wednesday's earliest date does that (Recharts'
-  // category axis only shows ticks for dates actually present in data).
-  const wednesdayStartDate = wednesdayTrend?.[0]?.date;
-  const displaySaturdayTrend =
-    saturdayTrend && wednesdayStartDate && (saturdayTrend.length === 0 || saturdayTrend[0].date > wednesdayStartDate)
-      ? [{ date: wednesdayStartDate, count: 0 }, ...saturdayTrend]
-      : saturdayTrend;
-
   return (
     <div>
       <h1>Dashboard</h1>
@@ -69,7 +59,12 @@ export default function AdminHome() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={wednesdayTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--ink-08)" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={trendTickFormatter} />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={trendTickFormatter}
+                    interval="preserveStartEnd"
+                  />
                   <YAxis allowDecimals={false} domain={trendYDomain} />
                   <Tooltip />
                   <Bar dataKey="count" fill="var(--navy)" />
@@ -89,9 +84,14 @@ export default function AdminHome() {
           {saturdayTrend && saturdayTrend.length > 0 && (
             <div style={{ height: 260 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={displaySaturdayTrend}>
+                <BarChart data={saturdayTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--ink-08)" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={trendTickFormatter} />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={trendTickFormatter}
+                    interval="preserveStartEnd"
+                  />
                   <YAxis allowDecimals={false} domain={trendYDomain} />
                   <Tooltip />
                   <Bar dataKey="count" fill="var(--chartreuse)" />
