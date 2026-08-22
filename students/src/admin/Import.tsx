@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { ConvexError } from "convex/values";
 import { api } from "../../convex/_generated/api";
 
@@ -12,6 +12,16 @@ export default function Import() {
   const [sessionDate, setSessionDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<"merge" | "separate" | null>(null);
+
+  const existingSession = useQuery(
+    api.importSession.checkExistingSessionForDate,
+    sessionDate ? { date: sessionDate } : "skip"
+  );
+
+  useEffect(() => {
+    setMode(null); // re-ask whenever the chosen date changes
+  }, [sessionDate]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -20,6 +30,7 @@ export default function Import() {
       setError("Choose a CSV file and set the session date.");
       return;
     }
+    if (existingSession && mode === null) return;
     setSubmitting(true);
     try {
       const csvText = await file.text();
@@ -27,6 +38,7 @@ export default function Import() {
         sessionDate,
         sourceFileName: file.name,
         csvText,
+        mode: mode ?? "separate",
       });
       navigate(`/admin/import/${result.sessionId}/review`);
     } catch (err) {
@@ -59,8 +71,26 @@ export default function Import() {
             required
           />
         </div>
+        {existingSession && mode === null && (
+          <div className="card" style={{ marginBottom: "1rem" }}>
+            <p style={{ marginTop: 0 }}>There is a pre-existing upload on this date.</p>
+            <p>Would you like to merge this upload with the previous one or treat as separate?</p>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => setMode("merge")}>
+                Merge
+              </button>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => setMode("separate")}>
+                Treat as separate
+              </button>
+            </div>
+          </div>
+        )}
         {error && <p className="text-error">{error}</p>}
-        <button type="submit" className="btn btn-brand" disabled={submitting}>
+        <button
+          type="submit"
+          className="btn btn-brand"
+          disabled={submitting || (!!existingSession && mode === null)}
+        >
           {submitting ? "Importing..." : "Import"}
         </button>
       </form>

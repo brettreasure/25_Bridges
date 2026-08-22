@@ -17,7 +17,9 @@ import { api } from "../../convex/_generated/api";
 export default function AdminHome() {
   const pending = useQuery(api.people.listByApproval, { approvalStatus: "pending" });
   const wednesdayTrend = useQuery(api.dashboard.wednesdayAttendanceTrend, {});
+  const saturdayTrend = useQuery(api.dashboard.saturdayAttendanceTrend, {});
   const churn = useQuery(api.dashboard.oneTimeAttendanceRate, {});
+  const streaks = useQuery(api.dashboard.topAttendanceStreaks, {});
 
   const churnData = churn
     ? [
@@ -25,6 +27,14 @@ export default function AdminHome() {
         { name: "Returned", value: churn.totalAttendingStudents - churn.oneTimeStudents },
       ]
     : [];
+
+  const sharedTrendMax = Math.max(
+    0,
+    ...(wednesdayTrend ?? []).map((d) => d.count),
+    ...(saturdayTrend ?? []).map((d) => d.count)
+  );
+  const trendYDomain: [number, number] = [0, sharedTrendMax];
+  const trendTickFormatter = (date: string) => date.slice(5);
 
   return (
     <div>
@@ -49,13 +59,53 @@ export default function AdminHome() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={wednesdayTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--ink-08)" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                  <YAxis allowDecimals={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={trendTickFormatter} />
+                  <YAxis allowDecimals={false} domain={trendYDomain} />
                   <Tooltip />
                   <Bar dataKey="count" fill="var(--navy)" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
+          )}
+        </div>
+
+        <div className="card" style={{ flex: "1 1 420px" }}>
+          <h2 style={{ marginTop: 0 }}>Saturday attendance — last 12 months</h2>
+          <p className="text-secondary">Students only (guests, aides, and teachers excluded).</p>
+          {saturdayTrend === undefined && <p>Loading...</p>}
+          {saturdayTrend && saturdayTrend.length === 0 && (
+            <p className="text-secondary">No Saturday sessions in this window.</p>
+          )}
+          {saturdayTrend && saturdayTrend.length > 0 && (
+            <div style={{ height: 260 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={saturdayTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--ink-08)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={trendTickFormatter} />
+                  <YAxis allowDecimals={false} domain={trendYDomain} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="var(--chartreuse)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+
+        <div className="card" style={{ flex: "1 1 320px" }}>
+          <h2 style={{ marginTop: 0 }}>Top attendance streaks</h2>
+          <p className="text-secondary">
+            Consecutive Wednesday/Saturday weeks attended, ending at the most recent class held.
+          </p>
+          {streaks === undefined && <p>Loading...</p>}
+          {streaks && streaks.length === 0 && <p className="text-secondary">No active streaks yet.</p>}
+          {streaks && streaks.length > 0 && (
+            <ol style={{ margin: 0, paddingLeft: "1.25rem" }}>
+              {streaks.map((s) => (
+                <li key={s.personId}>
+                  {s.name} — <strong>{s.streak}</strong> {s.streak === 1 ? "week" : "weeks"}
+                </li>
+              ))}
+            </ol>
           )}
         </div>
 

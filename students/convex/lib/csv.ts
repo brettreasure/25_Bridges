@@ -100,8 +100,8 @@ export function mergeByExactName(rows: NormalizedRow[]): NormalizedRow[] {
 
 const NAME_TOKEN = /[a-z]/i;
 
-// " & ", " and ", then "/" or "+" — in that order, per BUILD_SPEC.md step 4.
-const DUAL_NAME_PATTERNS = [/\s+&\s+/, /\s+and\s+/i, /\s*[/+]\s*/];
+// " & ", " and ", then "/", "\", or "+" — in that order, per BUILD_SPEC.md step 4.
+const DUAL_NAME_PATTERNS = [/\s+&\s+/, /\s+and\s+/i, /\s*[/\\+]\s*/];
 
 // Pure string version, reused both for splitting a raw name directly and
 // for checking whether a parenthetical's bracketed portion is itself a
