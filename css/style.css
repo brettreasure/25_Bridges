@@ -261,12 +261,31 @@ img { display: block; max-width: 100%; }
   grid-template-columns: 1fr 1fr;
   gap: 56px;
 }
+.profile-photo-frame {
+  position: relative;
+  margin-bottom: 28px;
+}
 .profile-photo {
   width: 100%;
   aspect-ratio: 4/5;
   object-fit: cover;
   object-position: center top;
-  margin-bottom: 28px;
+  display: block;
+}
+.stamp {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  border: 3px solid var(--danger);
+  color: var(--danger);
+  background: rgba(251,250,246,0.88);
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  transform: rotate(-10deg);
 }
 .profile-name {
   font-family: var(--serif);
